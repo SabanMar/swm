@@ -9,6 +9,7 @@ class SignUp extends StatefulWidget {
   const SignUp({super.key});
 
   @override
+<<<<<<< HEAD
   _SignUpPageState createState() => _SignUpPageState();
 }
 
@@ -32,6 +33,12 @@ class _SignUpPageState extends State<SignUp> {
       'first_name': firstName,
       'last_name': lastName,
     };
+=======
+  Widget build(BuildContext context) {
+    return Container(
+      child: Text('test test test'),
+    );
+>>>>>>> 49ff9e2d47b5fdd2b3866a291558378d20c8dfd3
   }
 
   Future<void> signup(String fullName, String email, String username,

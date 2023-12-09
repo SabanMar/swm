@@ -9,11 +9,12 @@ class SignUp extends StatefulWidget {
   const SignUp({super.key});
 
   @override
-<<<<<<< HEAD
   _SignUpPageState createState() => _SignUpPageState();
 }
 
 class _SignUpPageState extends State<SignUp> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController FullNameController = TextEditingController();
   TextEditingController EmailController = TextEditingController();
   TextEditingController UsernameController = TextEditingController();
@@ -26,19 +27,13 @@ class _SignUpPageState extends State<SignUp> {
   Map<String, String> splitFullName(String fullName) {
     List<String> names = fullName.split(' ');
 
-    String firstName = names.length > 0 ? names[0] : '';
+    String firstName = names.isNotEmpty ? names[0] : '';
     String lastName = names.length > 1 ? names.sublist(1).join(' ') : '';
 
     return {
       'first_name': firstName,
       'last_name': lastName,
     };
-=======
-  Widget build(BuildContext context) {
-    return Container(
-      child: Text('test test test'),
-    );
->>>>>>> 49ff9e2d47b5fdd2b3866a291558378d20c8dfd3
   }
 
   Future<void> signup(String fullName, String email, String username,
@@ -100,95 +95,144 @@ class _SignUpPageState extends State<SignUp> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            TextField(
-              controller: FullNameController,
-              decoration: const InputDecoration(
-                labelText: 'Full Name',
-              ),
-            ),
-            TextField(
-              controller: EmailController,
-              decoration: const InputDecoration(
-                labelText: 'email',
-              ),
-            ),
-            TextField(
-              controller: UsernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-              ),
-            ),
-            TextField(
-              controller: PasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-              ),
-              obscureText: true,
-            ),
-            TextField(
-              controller: ConfirmPasswordController,
-              decoration: const InputDecoration(
-                labelText: 'Confirm Password',
-              ),
-              obscureText: true,
-            ),
-            TextField(
-              controller: UniversityController,
-              decoration: const InputDecoration(
-                labelText: 'University/School',
-              ),
-            ),
-            TextField(
-              controller: PhoneController,
-              decoration: const InputDecoration(
-                labelText: 'Phone',
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                signup(
-                  FullNameController.text,
-                  EmailController.text,
-                  UsernameController.text,
-                  PasswordController.text,
-                  UniversityController.text,
-                  PhoneController.text,
-                );
-              },
-              child: const Text('Sign Up'),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Already have an account?"),
-                const SizedBox(width: 8),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                    );
-                  },
-                  style: ButtonStyle(
-                    minimumSize: MaterialStateProperty.all<Size>(
-                      const Size(
-                          100, 30), // Adjust the width and height as needed
-                    ),
-                  ),
-                  child: const Text('Login'),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextFormField(
+                controller: FullNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
                 ),
-              ],
-            ),
-          ], 
-        ), 
-      ), 
-    ); 
-  } 
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your full name';
+                  } else {
+                    return null;
+                  }
+                },
+              ),
+              TextFormField(
+                  controller: EmailController,
+                  decoration: const InputDecoration(
+                    labelText: 'email',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    } else {
+                      return null;
+                    }
+                  }),
+              TextFormField(
+                  controller: UsernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your Username';
+                    } else {
+                      return null;
+                    }
+                  }),
+              TextFormField(
+                controller: PasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your Password';
+                  } else {
+                    return null;
+                  }
+                },
+                obscureText: true,
+              ),
+              TextFormField(
+                controller: ConfirmPasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Password',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your password';
+                  } else {
+                    return null;
+                  }
+                },
+                obscureText: true,
+              ),
+              TextFormField(
+                  controller: UniversityController,
+                  decoration: const InputDecoration(
+                    labelText: 'University/School',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your University/School';
+                    } else {
+                      return null;
+                    }
+                  }),
+              TextFormField(
+                  controller: PhoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your phone';
+                    } else {
+                      return null;
+                    }
+                  }),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    signup(
+                      FullNameController.text,
+                      EmailController.text,
+                      UsernameController.text,
+                      PasswordController.text,
+                      UniversityController.text,
+                      PhoneController.text,
+                    );
+                  }
+                },
+                child: const Text('Sign Up'),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Already have an account?"),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()),
+                      );
+                    },
+                    style: ButtonStyle(
+                      minimumSize: MaterialStateProperty.all<Size>(
+                        const Size(
+                            100, 30), // Adjust the width and height as needed
+                      ),
+                    ),
+                    child: const Text('Login'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

@@ -27,6 +27,8 @@ Future<int?> getUserId() async {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -85,54 +87,73 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Username',
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              TextFormField(
+                controller: usernameController,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Username is required';
+                  } else {
+                    return null;
+                  }
+                },
               ),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
+              TextFormField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password is required';
+                  } else {
+                    return null;
+                  }
+                },
+                obscureText: true,
               ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _login(usernameController.text, passwordController.text);
-              },
-              child: const Text('Login'),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text("Don't you have an account?"),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SignUp()),
-                    );
-                  },
-                  style: ButtonStyle(
-                    fixedSize: MaterialStateProperty.all<Size>(const Size(
-                        80, 20)), // Change the width and height as needed
-                    // Other button style properties can be modified here
-                  ),
-                  child: const Text('Sign Up'),
-                )
-              ],
-            )
-          ],
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _login(usernameController.text, passwordController.text);
+                  }
+                },
+                child: const Text('Login'),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't you have an account?"),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignUp()),
+                      );
+                    },
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all<Size>(const Size(
+                          80, 20)), // Change the width and height as needed
+                      // Other button style properties can be modified here
+                    ),
+                    child: const Text('Sign Up'),
+                  )
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );

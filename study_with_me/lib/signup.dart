@@ -100,6 +100,17 @@ class _SignUpPageState extends State<SignUp> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              Align(
+                alignment: FractionalOffset.topRight,
+                child: Hero(
+                  tag: 'Girl',
+                  child: Image.asset(
+                    '/Users/mariasabani/Desktop/study_with_me/study_with_me/assets/images/registration.png',
+                    width: 150,
+                    height: 120,
+                  ),
+                ),
+              ),
               TextFormField(
                 controller: FullNameController,
                 decoration: const InputDecoration(
@@ -203,7 +214,15 @@ class _SignUpPageState extends State<SignUp> {
                     );
                   }
                 },
-                child: const Text('Sign Up'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Color(618264),
+                ),
+                child: const Text(
+                  'Sign Up',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 10),
               Row(

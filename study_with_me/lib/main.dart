@@ -18,8 +18,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Study With Me',
       theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: const Color(0xFFDDEBDD), // Set your background color here
       ),
       home: Wrapper(),
     );

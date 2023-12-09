@@ -93,6 +93,15 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
+              const Text(
+                'Welcome back!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              ),
+              Hero(
+                tag: 'LoginImage',
+                child: Image.asset('assets/images/login.png'),
+              ),
               TextFormField(
                 controller: usernameController,
                 decoration: const InputDecoration(
@@ -127,7 +136,15 @@ class _LoginPageState extends State<LoginPage> {
                     _login(usernameController.text, passwordController.text);
                   }
                 },
-                child: const Text('Login'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color(0x00618264),
+                ),
+                child: const Text(
+                  'Log in',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(
                 height: 10,
@@ -136,6 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Don't you have an account?"),
+                  const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -143,11 +161,6 @@ class _LoginPageState extends State<LoginPage> {
                         MaterialPageRoute(builder: (context) => const SignUp()),
                       );
                     },
-                    style: ButtonStyle(
-                      fixedSize: MaterialStateProperty.all<Size>(const Size(
-                          80, 20)), // Change the width and height as needed
-                      // Other button style properties can be modified here
-                    ),
                     child: const Text('Sign Up'),
                   )
                 ],

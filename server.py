@@ -13,6 +13,15 @@ config = {
     "cursorclass": pymysql.cursors.DictCursor,
 }
 
+config1 = {
+    "user": "root",
+    "password": "2403",
+    "host": "localhost",
+    "database": "swm",
+    "charset": "utf8mb4",
+    "cursorclass": pymysql.cursors.DictCursor,
+}
+
 app = Flask(__name__)
 # we use keys in order to store the user's data in sessions.
 app.secret_key = secrets.token_hex(24)

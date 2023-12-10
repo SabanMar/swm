@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:study_with_me/get_started.dart';
+import 'package:study_with_me/start_session.dart';
 import 'usermanager.dart';
 
 class HomePage extends StatelessWidget {
@@ -18,9 +19,47 @@ class HomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'Welcome to the Homepage!',
-              style: TextStyle(fontSize: 24),
+            GestureDetector(
+              child: Container(
+                margin: EdgeInsets.only(left: 20, right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Center(
+                    heightFactor: 6,
+                    child: Text(
+                      'Join a Session',
+                      style:
+                          TextStyle(color: Colors.green.shade700, fontSize: 25),
+                    )),
+              ),
+            ),
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => StartSession(),
+                  ),
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.only(left: 20, right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Center(
+                    heightFactor: 6,
+                    child: Text(
+                      'Start your own Session!',
+                      style:
+                          TextStyle(color: Colors.green.shade700, fontSize: 25),
+                      softWrap: true,
+                    )),
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

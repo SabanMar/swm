@@ -1,10 +1,11 @@
-from argparse import Action
 from flask import Flask, request, jsonify, json, session
 import pymysql
 import secrets
+#from flask_socketio import SocketIO
+from datetime import datetime
 
 # Details about base
-config = {
+config1 = {
     "user": "root",
     "password": "2255",
     "host": "localhost",
@@ -13,7 +14,7 @@ config = {
     "cursorclass": pymysql.cursors.DictCursor,
 }
 
-config1 = {
+config = {
     "user": "root",
     "password": "2403",
     "host": "localhost",
@@ -25,6 +26,7 @@ config1 = {
 app = Flask(__name__)
 # we use keys in order to store the user's data in sessions.
 app.secret_key = secrets.token_hex(24)
+#socketio = SocketIO(app)
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -76,75 +78,80 @@ def signup():
             return jsonify({"message" : "User could not be registered"})
 
 
-@app.route("/new_session", methods = ['GET','POST'])
+
+
+@app.route("/create_session", methods=['POST'])
 def create_session():
-    if 'user_id' not in session:
-        return jsonify({"message": "User not logged in"})
+    if request.method == 'POST':
+        data = request.get_json()
 
-    #Checking if user_id exists in the session
-    host_id = session['user_id']     
-    data = request.get_json()
-    #host_id = data.get('host_id')
-    subject = data.get('subject')
-    location = data.get('location')
-    start_time = data.get('start_time')
-    end_time = data.get('end_time')
+        host_id = data.get('host_id')
+        subject = data.get('subject')
+        location = data.get('location')
+        start_time = data.get('start_time')
+        end_time = data.get('end_time')
+        print(host_id, subject, location, start_time, end_time)
+        # Formatting received date-time strings to match MySQL DATETIME format
+        formatted_start_time = datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
+        formatted_end_time = datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
+        print(host_id, subject, location, formatted_start_time, formatted_end_time)
 
-    conn = pymysql.connect(**config) 
-    with conn.cursor() as cursor:
-        query = "INSERT INTO sessions(host_id, subject, location, start_time, end_time) VALUES(%s, %s, %s, %s, %s)"
-        cursor.execute(query, (host_id,subject,location,start_time,end_time))
-        conn.commit()
+        if not all([host_id, subject, location, start_time, end_time]):
+            print(host_id, subject, location, start_time, end_time)
+            return jsonify({"error": "Incomplete data"}), 400  # Bad Request
 
-        # If cursor.rowcount is greater than 0, it means that some rows were affected by the INSERT statement.
-        if cursor.rowcount > 0:
-            return jsonify({"message" : "New session started successfully"})
-        else:
-            return jsonify({"message" : "The session didn't start"})
+        conn = pymysql.connect(**config)
 
-
-@app.route("/join_session/<int:sessions_id>", methods=['POST'])
-def join_session(sessions_id):
-    if 'user_id' not in session:
-            return jsonify({"message": "User not logged in"})
-    
-    member_id = session['user_id']
-    data = request.get_json()
-    action = data.get('action')
-    
-    if action == 'join':
-        conn = pymysql.connect(**config) 
         with conn.cursor() as cursor:
-            query_check = "SELECT * FROM sessions WHERE id = %s"
-            cursor.execute(query_check,(sessions_id,))
-            result = cursor.fetchone()
+            query = "INSERT INTO sessions(host_id, subject, location, start_time, end_time) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(query, (host_id, subject, location, formatted_start_time, formatted_end_time))
+            conn.commit()
 
-            if result and result['host_id'] != member_id:
-                query = ""
-                if result['member1_id'] is None:
-                    query = "UPDATE sessions SET member1_id = %s WHERE id = %s"
-                elif result['member2_id'] is None:
-                    query = "UPDATE sessions SET member2_id = %s WHERE id = %s"
-                elif result['member3_id'] is None:
-                    query = "UPDATE sessions SET member3_id = %s WHERE id = %s"
-                elif result['member4_id'] is None:
-                    query = "UPDATE sessions SET member4_id = %s WHERE id = %s"
-                else:
-                    return jsonify({"message" : "The session is full!"})
-            
-                if query:
-                    cursor.execute(query, (member_id, sessions_id))
-                    conn.commit()
+            if cursor.rowcount > 0:
+                session_id = cursor.lastrowid
+                return jsonify({"message": "Session created successfully", "session_id": session_id})
+            else:
+                return jsonify({"message": "Session creation failed"}), 500  # Server Error
 
-                    # If cursor.rowcount is greater than 0, it means that some rows were affected by the INSERT statement.
-                    if cursor.rowcount > 0:
-                        return jsonify({"message" : "User joined the session"})
-                    else:
-                        return jsonify({"message" : "User didn't join the session"})
-            else: 
-                return jsonify({"message" : "You are the host of the session"})
-            
-    return jsonify({"message": "Error joining the session"})
+    return jsonify({"error": "Method not allowed"}), 405
+
+
+
+
+
+@app.route("/join_session", methods=['POST'])
+def join_session():
+    if request.method == 'POST':
+        data = request.get_json()
+
+        session_id = data.get('session_id')
+        member_id = data.get('member_id')  # Assuming the ID of the user joining
+
+        conn = pymysql.connect(**config)
+
+        with conn.cursor() as cursor:
+            # Get session details and count current members
+            query_count_members = "SELECT member1_id, member2_id, member3_id, member4_id FROM sessions WHERE id = %s"
+            cursor.execute(query_count_members, session_id)
+            session_details = cursor.fetchone()
+
+            members = [session_details[f'member{i}_id'] for i in range(1, 5)]
+            if member_id in members:
+                return jsonify({"message": "User is already a member of this session", "session_id": session_id})
+
+            if None in members:
+                # Find first available slot and add the user
+                index = members.index(None) + 1
+                query_update_member = f"UPDATE sessions SET member{index}_id = %s WHERE id = %s"
+                cursor.execute(query_update_member, (member_id, session_id))
+                conn.commit()
+
+                return jsonify({"message": f"Joined session successfully as member {index}", "session_id": session_id})
+            else:
+                return jsonify({"message": "Session is full", "session_id": session_id})
+
+    return jsonify({"error": "Method not allowed"}), 405
+
 
 
 if __name__ == "__main__":

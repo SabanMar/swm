@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:study_with_me/usermanager.dart';
 import 'package:http/http.dart' as http;
@@ -16,6 +15,7 @@ class _StartSessionState extends State<StartSession> {
   DateTime? selectedEndTime;
   TextEditingController subjectController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController maxMembersController = TextEditingController();
 
   Future<void> _selectDateTime(bool isStartTime) async {
     final DateTime? picked = await showDatePicker(
@@ -61,10 +61,11 @@ class _StartSessionState extends State<StartSession> {
     String location,
     DateTime startTime,
     DateTime endTime,
+    String maxMembers
   ) async {
     int? hostId = UserManager.loggedInUserId; // Get host ID from UserManager
 
-    final Uri uri = Uri.parse('http://10.0.2.2:5000/create_session');
+    final Uri uri = Uri.parse('http://127.0.0.1:5000/create_session');
 
     final Map<String, dynamic> requestData = {
       "host_id": hostId.toString(),
@@ -72,6 +73,7 @@ class _StartSessionState extends State<StartSession> {
       "location": location,
       "start_time": startTime.toIso8601String(),
       "end_time": endTime.toIso8601String(),
+      "max_members": maxMembers
     };
 
     try {
@@ -83,13 +85,13 @@ class _StartSessionState extends State<StartSession> {
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Session created successfully')),
+          const SnackBar(content: Text('Session created successfully')),
         );
         // Navigate to the next screen upon successful session creation
         // Navigator.of(context).pushReplacement(...);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create session')),
+          const SnackBar(content: Text('Failed to create session')),
         );
       }
     } catch (error) {
@@ -99,9 +101,13 @@ class _StartSessionState extends State<StartSession> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFDDEBDD),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -109,18 +115,24 @@ class _StartSessionState extends State<StartSession> {
           children: [
             TextFormField(
               controller: subjectController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Subject',
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextFormField(
               controller: locationController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Location',
               ),
             ),
-            SizedBox(height: 16),
+            TextFormField(
+              controller: maxMembersController,
+              decoration: const InputDecoration(
+                labelText: 'Members(1-5)',
+              ),
+            ),
+            const SizedBox(height: 16),
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -146,12 +158,13 @@ class _StartSessionState extends State<StartSession> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 if (selectedStartTime != null && selectedEndTime != null) {
                   String subject = subjectController.text;
                   String location = locationController.text;
+                  String maxMembers = maxMembersController.text;
 
                   // Call createSession with all the extracted values
                   createSession(
@@ -160,16 +173,17 @@ class _StartSessionState extends State<StartSession> {
                     location,
                     selectedStartTime!,
                     selectedEndTime!,
+                    maxMembers
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Please select start and end times'),
                     ),
                   );
                 }
               },
-              child: Text('Start Session'),
+              child: const Text('Start Session'),
             ),
           ],
         ),

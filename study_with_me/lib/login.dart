@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
 
   Future<void> _login(String username, String password) async {
-    final url = Uri.parse('http://10.0.2.2:5000/login');
+    final url = Uri.parse('http://127.0.0.1:5000/login');
 
     final response = await http.post(
       url,
@@ -82,6 +82,9 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFDDEBDD),
+      ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Padding(

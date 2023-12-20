@@ -9,6 +9,9 @@ class GetStarted extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFDDEBDD),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -43,9 +46,9 @@ class GetStarted extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  onPrimary: Colors.white,
                   primary: const Color(0x00618264),
                 ),
+                
                 child: const Text(
                   'GET STARTED',
                   style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:study_with_me/get_started.dart';
 import 'package:study_with_me/start_session.dart';
+import 'package:study_with_me/join_session.dart';
 import 'usermanager.dart';
 
 class HomePage extends StatelessWidget {
@@ -15,13 +16,24 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFDDEBDD),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const JoinSession(),
+                  ),
+                );
+              },
               child: Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
+                margin: const EdgeInsets.only(left: 20, right: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10.0),
@@ -30,8 +42,10 @@ class HomePage extends StatelessWidget {
                     heightFactor: 6,
                     child: Text(
                       'Join a Session',
-                      style:
-                          TextStyle(color: Colors.green.shade700, fontSize: 25),
+                      style: TextStyle(
+                          color: Colors.green.shade700,
+                          fontSize: 25,
+                          fontWeight: FontWeight.w600),
                     )),
               ),
             ),
@@ -41,24 +55,27 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StartSession(),
+                    builder: (context) => const StartSession(),
                   ),
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
+                margin: const EdgeInsets.only(left: 20, right: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: Center(
-                    heightFactor: 6,
-                    child: Text(
-                      'Start your own Session!',
-                      style:
-                          TextStyle(color: Colors.green.shade700, fontSize: 25),
-                      softWrap: true,
-                    )),
+                  heightFactor: 6,
+                  child: Text(
+                    'Start your own Session!',
+                    style: TextStyle(
+                        color: Colors.green.shade700,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w600),
+                    softWrap: true,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 20),

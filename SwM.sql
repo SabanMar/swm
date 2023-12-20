@@ -1,6 +1,6 @@
 -- MariaDB dump 10.19-11.1.2-MariaDB, for osx10.18 (arm64)
 --
--- Host: localhost    Database: SwM
+-- Host: localhost    Database: swm
 -- ------------------------------------------------------
 -- Server version	11.1.2-MariaDB
 
@@ -16,44 +16,27 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `session`
+-- Table structure for table `avatar`
 --
 
-DROP TABLE IF EXISTS `session`;
+DROP TABLE IF EXISTS `avatar`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `sessions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `host_id` int(11) NOT NULL,
-  `member1_id` int(11) DEFAULT NULL,
-  `member2_id` int(11) DEFAULT NULL,
-  `member3_id` int(11) DEFAULT NULL,
-  `member4_id` int(11) DEFAULT NULL,
-  `subject` text NOT NULL,
-  `location` text NOT NULL,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `host_idfk` (`host_id`),
-  KEY `member1_idfk` (`member1_id`),
-  KEY `member2_idfk` (`member2_id`),
-  KEY `member3_idfk` (`member3_id`),
-  KEY `member4_idfk` (`member4_id`),
-  CONSTRAINT `host_idfk` FOREIGN KEY (`host_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `member1_idfk` FOREIGN KEY (`member1_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `member2_idfk` FOREIGN KEY (`member2_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `member3_idfk` FOREIGN KEY (`member3_id`) REFERENCES `users` (`id`),
-  CONSTRAINT `member4_idfk` FOREIGN KEY (`member4_id`) REFERENCES `users` (`id`)
+CREATE TABLE `avatar` (
+  `id` int(11) NOT NULL,
+  `cost` int(11) NOT NULL,
+  `file_name` text NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `session`
+-- Dumping data for table `avatar`
 --
 
-LOCK TABLES `session` WRITE;
-/*!40000 ALTER TABLE `session` DISABLE KEYS */;
-/*!40000 ALTER TABLE `session` ENABLE KEYS */;
+LOCK TABLES `avatar` WRITE;
+/*!40000 ALTER TABLE `avatar` DISABLE KEYS */;
+/*!40000 ALTER TABLE `avatar` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -83,6 +66,52 @@ LOCK TABLES `session_files` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sessions`
+--
+
+DROP TABLE IF EXISTS `sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sessions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host_id` int(11) NOT NULL,
+  `member1_id` int(11) DEFAULT NULL,
+  `member2_id` int(11) DEFAULT NULL,
+  `member3_id` int(11) DEFAULT NULL,
+  `member4_id` int(11) DEFAULT NULL,
+  `subject` text NOT NULL,
+  `location` text NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime NOT NULL,
+  `max_members` int(11) NOT NULL DEFAULT 5,
+  `current_members` int(11) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `host_idfk` (`host_id`),
+  KEY `member1_idfk` (`member1_id`),
+  KEY `member2_idfk` (`member2_id`),
+  KEY `member3_idfk` (`member3_id`),
+  KEY `member4_idfk` (`member4_id`),
+  CONSTRAINT `host_idfk` FOREIGN KEY (`host_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `member1_idfk` FOREIGN KEY (`member1_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `member2_idfk` FOREIGN KEY (`member2_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `member3_idfk` FOREIGN KEY (`member3_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `member4_idfk` FOREIGN KEY (`member4_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sessions`
+--
+
+LOCK TABLES `sessions` WRITE;
+/*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
+INSERT INTO `sessions` VALUES
+(6,19,22,NULL,NULL,NULL,'Maths','Zografou','2023-12-20 08:30:00','2023-12-20 10:00:00',2,2),
+(7,18,NULL,NULL,NULL,NULL,'philosophy','kick','2023-12-20 15:00:00','2023-12-20 17:00:00',5,1);
+/*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `users`
 --
 
@@ -104,7 +133,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `unique_username` (`username`),
   UNIQUE KEY `unique_password` (`password`),
   UNIQUE KEY `unique_email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,11 +143,42 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(1,'maria','1234','NTUA','sab@gmail.com','Maria','Sabani','12345678',1000,'thrgfds'),
-(2,'btrvd','yhtger','rthegrwfe','nyrthegrfe','rhtgr4f3','yntrhg','yntrthgerf',0,NULL),
-(3,'ilias','1111','NTUA','user@ehotmail.com','John','Doe','1234567890',0,NULL),
-(7,'marianthi','2222','NTUA','mar@ehotmail.com','marianthi','metaxaki','6934567890',0,NULL);
+(11,'dimitra','222','NTUA','dgini@ehotmail.com','marianthi','metaxaki','6934567890',0,NULL),
+(12,'maria','1234','NTUA','sabmar@ehotmail.com','maria','sabani','6934567890',0,NULL),
+(14,'thoubi','333','NTUA','mar@ehotmail.com','marianthi','metaxaki','6988092861',0,NULL),
+(15,'vivian','111','NTUA','viviaan@ehotmail.com','Vivian','Thanou','6988092863',0,NULL),
+(16,'valia','678','NTUA','salia@ehotmail.com','Valia','Samara','6988052863',0,NULL),
+(17,'petros','000','Aristotelio','petrospil@ehotmail.com','Petros','Piliouris','6988052425',0,NULL),
+(18,'eleni','909','UPEC','elenisabani@ehotmail.com','Helen','Sabani','6983672097',0,NULL),
+(19,'valaki','000000','NTUA','valia@gmail.com','Valia','Samara','3245678',0,NULL),
+(22,'jo','8989','Harvard','jo@gmail.com','Jo','Goldberg','9834562789',0,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `users_avatars`
+--
+
+DROP TABLE IF EXISTS `users_avatars`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users_avatars` (
+  `user_id` int(11) NOT NULL,
+  `avatar_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`,`avatar_id`),
+  KEY `avatar_id` (`avatar_id`),
+  CONSTRAINT `users_avatars_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `users_avatars_ibfk_2` FOREIGN KEY (`avatar_id`) REFERENCES `avatar` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `users_avatars`
+--
+
+LOCK TABLES `users_avatars` WRITE;
+/*!40000 ALTER TABLE `users_avatars` DISABLE KEYS */;
+/*!40000 ALTER TABLE `users_avatars` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -130,4 +190,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-11-16  1:43:13
+-- Dump completed on 2023-12-20 14:03:55

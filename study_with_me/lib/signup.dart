@@ -38,7 +38,7 @@ class _SignUpPageState extends State<SignUp> {
 
   Future<void> signup(String fullName, String email, String username,
       String password, String uni, String phone) async {
-    final url = Uri.parse('http://127.0.0.1:5000/signup');
+    final url = Uri.parse('http://10.0.2.2:5000/signup');
     Map<String, String> names = splitFullName(fullName);
 
     Map<String, dynamic> requestBody = {

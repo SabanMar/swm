@@ -5,7 +5,7 @@ import secrets
 from datetime import datetime
 
 # Details about base
-config1 = {
+config = {
     "user": "root",
     "password": "2255",
     "host": "localhost",
@@ -14,7 +14,7 @@ config1 = {
     "cursorclass": pymysql.cursors.DictCursor,
 }
 
-config = {
+config1 = {
     "user": "root",
     "password": "2403",
     "host": "localhost",
@@ -93,7 +93,7 @@ def create_session():
         # Formatting received date-time strings to match MySQL DATETIME format
         #formatted_start_time = datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
         #formatted_end_time = datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d %H:%M:%S')
-        print(host_id, subject, location, start_time, end_time)
+        #print(host_id, subject, location, start_time, end_time)
 
         if not all([host_id, subject, location, start_time, end_time]):
             print(host_id, subject, location, start_time, end_time)
@@ -112,6 +112,24 @@ def create_session():
             else:
                 return jsonify({"message": "Session creation failed"}), 500  # Server Error
 
+    return jsonify({"error": "Method not allowed"}), 405
+
+@app.route("/get_session_data", methods=['GET']) 
+def get_session_data():
+    if request.method == 'GET':
+        session_id = request.args.get('session_id')
+        
+        conn = pymysql.connect(**config1)
+        
+        with conn.cursor() as cursor:
+            query_session_data = "SELECT * FROM sessions WHERE id = %s"
+            cursor.execute(query_session_data, session_id)
+            session_data = cursor.fetchone()
+            
+            if session_data:
+                return jsonify(session_data), 200
+            else:
+                return jsonify(f"Session with id: {session_id} not found."), 404
     return jsonify({"error": "Method not allowed"}), 405
 
 
@@ -151,6 +169,23 @@ def join_session():
 
     return jsonify({"error": "Method not allowed"}), 405
 
+
+@app.route("/get_all_sessions", methods=['GET']) 
+def get_all_sessions():
+    if request.method == 'GET':
+        
+        conn = pymysql.connect(**config1)
+        
+        with conn.cursor() as cursor:
+            query_session_data = "SELECT * FROM sessions"
+            cursor.execute(query_session_data)
+            session_data = cursor.fetchall()
+            
+            if session_data:
+                return jsonify(session_data), 200
+            else:
+                return jsonify(f"No sessions found."), 404
+    return jsonify({"error": "Method not allowed"}), 405
 
 
 if __name__ == "__main__":

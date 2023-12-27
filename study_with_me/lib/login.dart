@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
 
   Future<void> _login(String username, String password) async {
-    final url = Uri.parse('http://127.0.0.1:5000/login');
+    final url = Uri.parse('http://10.0.2.2:5000/login');
 
     final response = await http.post(
       url,
@@ -49,8 +49,14 @@ class _LoginPageState extends State<LoginPage> {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       final userId = responseData['id'];
-      UserManager.loggedInUserId =
-          userId; // Set the logged-in user's ID in UserManager
+      UserManager.loggedInUserId = userId;
+      UserManager.username = responseData['username'];
+      UserManager.firstName = responseData['first_name'];
+      UserManager.lastName = responseData['last_name'];
+      UserManager.email = responseData['email'];
+      UserManager.university = responseData['university'];
+      UserManager.phone = responseData['phone'];
+      UserManager.coins = responseData['coins'];
 
       // Successful login
       Navigator.push(

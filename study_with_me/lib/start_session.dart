@@ -178,12 +178,12 @@ class _StartSessionState extends State<StartSession> {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Please select start and end times'),
+                      content: Text('Please select start and end time'),
                     ),
                   );
                 }
               },
-              child: const Text('Start Session'),
+              child: const Center(child: Icon(Icons.check)),
             ),
           ],
         ),

@@ -13,8 +13,6 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUp> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   TextEditingController FullNameController = TextEditingController();
   TextEditingController EmailController = TextEditingController();
   TextEditingController UsernameController = TextEditingController();
@@ -27,7 +25,7 @@ class _SignUpPageState extends State<SignUp> {
   Map<String, String> splitFullName(String fullName) {
     List<String> names = fullName.split(' ');
 
-    String firstName = names.isNotEmpty ? names[0] : '';
+    String firstName = names.length > 0 ? names[0] : '';
     String lastName = names.length > 1 ? names.sublist(1).join(' ') : '';
 
     return {
@@ -60,25 +58,9 @@ class _SignUpPageState extends State<SignUp> {
         body: data);
 
     if (response.statusCode == 200) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("SignUp Success"),
-            content: const Text("Press ok to login"),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
-                },
-                child: const Text("OK"),
-              ),
-            ],
-          );
-        },
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
       );
     } else {
       // Login failed
@@ -107,170 +89,100 @@ class _SignUpPageState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFFDDEBDD),
+        title: const Text('Sign Up'),
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Align(
-                  alignment: FractionalOffset.topRight,
-                  child: Hero(
-                    tag: 'Girl',
-                    child: Image.asset(
-                      'assets/images/registration.png',
-                      width: 150,
-                      height: 120,
-                    ),
-                  ),
-                ),
-                TextFormField(
-                  controller: FullNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
-                    } else {
-                      return null;
-                    }
-                  },
-                ),
-                TextFormField(
-                    controller: EmailController,
-                    decoration: const InputDecoration(
-                      labelText: 'email',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      } else {
-                        return null;
-                      }
-                    }),
-                TextFormField(
-                    controller: UsernameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Username',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your Username';
-                      } else {
-                        return null;
-                      }
-                    }),
-                TextFormField(
-                  controller: PasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your Password';
-                    } else {
-                      return null;
-                    }
-                  },
-                  obscureText: true,
-                ),
-                TextFormField(
-                  controller: ConfirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
-                    } else {
-                      return null;
-                    }
-                  },
-                  obscureText: true,
-                ),
-                TextFormField(
-                    controller: UniversityController,
-                    decoration: const InputDecoration(
-                      labelText: 'University/School',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your University/School';
-                      } else {
-                        return null;
-                      }
-                    }),
-                TextFormField(
-                    controller: PhoneController,
-                    decoration: const InputDecoration(
-                      labelText: 'Phone',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone';
-                      } else {
-                        return null;
-                      }
-                    }),
-                const SizedBox(height: 20),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            TextField(
+              controller: FullNameController,
+              decoration: const InputDecoration(
+                labelText: 'Full Name',
+              ),
+            ),
+            TextField(
+              controller: EmailController,
+              decoration: const InputDecoration(
+                labelText: 'email',
+              ),
+            ),
+            TextField(
+              controller: UsernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+              ),
+            ),
+            TextField(
+              controller: PasswordController,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+              ),
+              obscureText: true,
+            ),
+            TextField(
+              controller: ConfirmPasswordController,
+              decoration: const InputDecoration(
+                labelText: 'Confirm Password',
+              ),
+              obscureText: true,
+            ),
+            TextField(
+              controller: UniversityController,
+              decoration: const InputDecoration(
+                labelText: 'University/School',
+              ),
+            ),
+            TextField(
+              controller: PhoneController,
+              decoration: const InputDecoration(
+                labelText: 'Phone',
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                signup(
+                  FullNameController.text,
+                  EmailController.text,
+                  UsernameController.text,
+                  PasswordController.text,
+                  UniversityController.text,
+                  PhoneController.text,
+                );
+              },
+              child: const Text('Sign Up'),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Already have an account?"),
+                const SizedBox(width: 8),
                 ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      signup(
-                        FullNameController.text,
-                        EmailController.text,
-                        UsernameController.text,
-                        PasswordController.text,
-                        UniversityController.text,
-                        PhoneController.text,
-                      );
-                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                    );
                   },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Color(618264),
-                  ),
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Already have an account?"),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const LoginPage()),
-                        );
-                      },
-                      style: ButtonStyle(
-                        minimumSize: MaterialStateProperty.all<Size>(
-                          const Size(
-                              100, 30), // Adjust the width and height as needed
-                        ),
-                      ),
-                      child: const Text('Login'),
+                  style: ButtonStyle(
+                    minimumSize: MaterialStateProperty.all<Size>(
+                      const Size(
+                          100, 30), // Adjust the width and height as needed
                     ),
-                  ],
+                  ),
+                  child: const Text('Login'),
                 ),
               ],
             ),
-          ),
-        ),
-      ),
-    );
-  }
+          ], 
+        ), 
+      ), 
+    ); 
+  } 
 }
+

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:study_with_me/session_details_host.dart';
 import 'package:study_with_me/usermanager.dart';
 import 'package:http/http.dart' as http;
 
@@ -56,13 +57,12 @@ class _StartSessionState extends State<StartSession> {
   }
 
   Future<void> createSession(
-    BuildContext context,
-    String subject,
-    String location,
-    DateTime startTime,
-    DateTime endTime,
-    String maxMembers
-  ) async {
+      BuildContext context,
+      String subject,
+      String location,
+      DateTime startTime,
+      DateTime endTime,
+      String maxMembers) async {
     int? hostId = UserManager.loggedInUserId; // Get host ID from UserManager
 
     final Uri uri = Uri.parse('http://127.0.0.1:5000/create_session');
@@ -87,8 +87,19 @@ class _StartSessionState extends State<StartSession> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Session created successfully')),
         );
-        // Navigate to the next screen upon successful session creation
-        // Navigator.of(context).pushReplacement(...);
+
+        // Extract session ID from the response
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        int sessionID = responseData[
+            'session_id']; // Assuming 'session_id' contains the session ID
+
+        // Navigate to the SessionDetailsHost page with the received session ID
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SessionDetailsHost(sessionID: sessionID),
+          ),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to create session')),
@@ -101,7 +112,6 @@ class _StartSessionState extends State<StartSession> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,82 +120,78 @@ class _StartSessionState extends State<StartSession> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              controller: subjectController,
-              decoration: const InputDecoration(
-                labelText: 'Subject',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: locationController,
-              decoration: const InputDecoration(
-                labelText: 'Location',
-              ),
-            ),
-            TextFormField(
-              controller: maxMembersController,
-              decoration: const InputDecoration(
-                labelText: 'Members(1-5)',
-              ),
-            ),
-            const SizedBox(height: 16),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    _selectDateTime(true); // Open start date time picker
-                  },
-                  child: Text(
-                    selectedStartTime != null
-                        ? 'Start Time: ${selectedStartTime!.toLocal()}'
-                        : 'Select Start Time',
-                  ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextFormField(
+                controller: subjectController,
+                decoration: const InputDecoration(
+                  labelText: 'Subject',
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    _selectDateTime(false); // Open end date time picker
-                  },
-                  child: Text(
-                    selectedEndTime != null
-                        ? 'End Time: ${selectedEndTime!.toLocal()}'
-                        : 'Select End Time',
-                  ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: locationController,
+                decoration: const InputDecoration(
+                  labelText: 'Location',
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                if (selectedStartTime != null && selectedEndTime != null) {
-                  String subject = subjectController.text;
-                  String location = locationController.text;
-                  String maxMembers = maxMembersController.text;
-
-                  // Call createSession with all the extracted values
-                  createSession(
-                    context,
-                    subject,
-                    location,
-                    selectedStartTime!,
-                    selectedEndTime!,
-                    maxMembers
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please select start and end time'),
+              ),
+              TextFormField(
+                controller: maxMembersController,
+                decoration: const InputDecoration(
+                  labelText: 'Members(1-5)',
+                ),
+              ),
+              const SizedBox(height: 16),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _selectDateTime(true); // Open start date time picker
+                    },
+                    child: Text(
+                      selectedStartTime != null
+                          ? 'Start Time: ${selectedStartTime!.toLocal()}'
+                          : 'Select Start Time',
                     ),
-                  );
-                }
-              },
-              child: const Center(child: Icon(Icons.check)),
-            ),
-          ],
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _selectDateTime(false); // Open end date time picker
+                    },
+                    child: Text(
+                      selectedEndTime != null
+                          ? 'End Time: ${selectedEndTime!.toLocal()}'
+                          : 'Select End Time',
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  if (selectedStartTime != null && selectedEndTime != null) {
+                    String subject = subjectController.text;
+                    String location = locationController.text;
+                    String maxMembers = maxMembersController.text;
+
+                    // Call createSession with all the extracted values
+                    createSession(context, subject, location,
+                        selectedStartTime!, selectedEndTime!, maxMembers);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please select start and end times'),
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Start Session'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -5,17 +5,17 @@ import 'package:http/http.dart' as http;
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
 
-class SessionDetailsHost extends StatefulWidget {
+class SessionDetailsUser extends StatefulWidget {
   final int sessionID;
 
-  const SessionDetailsHost({Key? key, required this.sessionID})
+  const SessionDetailsUser({Key? key, required this.sessionID})
       : super(key: key);
 
   @override
-  State<SessionDetailsHost> createState() => _SessionDetailsHostState();
+  State<SessionDetailsUser> createState() => _SessionDetailsUserState();
 }
 
-class _SessionDetailsHostState extends State<SessionDetailsHost> {
+class _SessionDetailsUserState extends State<SessionDetailsUser> {
   Map<String, dynamic> sessionData = {};
   late Timer _timer;
   late Future<Map<String, dynamic>> _sessionDataFuture;
@@ -59,6 +59,37 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
       // Handle errors here
       print('Error: $error');
       throw error;
+    }
+  }
+
+  void joinSession(String sessionID, String user_id) async {
+    final url = Uri.parse('http://10.0.2.2:5000/join_session');
+
+    final Map<String, dynamic> requestData = {
+      "session_id": sessionID,
+      "member_id": user_id
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Session joined successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to join session')),
+        );
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $error')),
+      );
     }
   }
 
@@ -204,9 +235,10 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                     height: 10,
                   ),
                   ElevatedButton(
-                    onPressed: null,
+                    onPressed: () => joinSession(widget.sessionID.toString(),
+                        UserManager.loggedInUserId.toString()),
                     child: Text(
-                      "Start",
+                      "Join",
                       style: TextStyle(color: Colors.black),
                     ),
                     style: ButtonStyle(

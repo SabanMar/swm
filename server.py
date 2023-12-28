@@ -132,6 +132,90 @@ def get_session_data():
                 return jsonify(f"Session with id: {session_id} not found."), 404
     return jsonify({"error": "Method not allowed"}), 405
 
+@app.route("/get_user_data", methods=['GET'])
+def get_user_data():
+    if request.method == 'GET':
+        user_id = request.args.get('user_id')
+        
+        conn = pymysql.connect(**config1)
+        
+        with conn.cursor() as cursor:
+            query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio FROM users WHERE id = %s"
+            cursor.execute(query_user_data, user_id)
+            user_data = cursor.fetchone()
+            
+            if user_data:
+                return jsonify(user_data), 200
+            else:
+                return jsonify(f"User with id: {user_id} not found."), 404
+    return jsonify({"error": "Method not allowed"}), 405
+
+@app.route("/get_session_details", methods=['GET']) 
+def get_session_details():
+    if request.method == 'GET':
+        session_id = request.args.get('session_id')
+        
+        conn = pymysql.connect(**config1)
+        
+        with conn.cursor() as cursor:
+            query_session_data = """SELECT 
+                                    s.*,
+                                    u_host.username AS host_username,
+                                    u_host.university AS host_university,
+                                    u_host.email AS host_email,
+                                    u_host.first_name AS host_first_name,
+                                    u_host.last_name AS host_last_name,
+                                    u_host.phone AS host_phone,
+                                    u_host.coins AS host_coins,
+                                    u_host.bio AS host_bio,
+                                    u_member1.username AS member1_username,
+                                    u_member1.university AS member1_university,
+                                    u_member1.email AS member1_email,
+                                    u_member1.first_name AS member1_first_name,
+                                    u_member1.last_name AS member1_last_name,
+                                    u_member1.phone AS member1_phone,
+                                    u_member1.coins AS member1_coins,
+                                    u_member1.bio AS member1_bio,
+                                    u_member2.username AS member2_username,
+                                    u_member2.university AS member2_university,
+                                    u_member2.email AS member2_email,
+                                    u_member2.first_name AS member2_first_name,
+                                    u_member2.last_name AS member2_last_name,
+                                    u_member2.phone AS member2_phone,
+                                    u_member2.coins AS member2_coins,
+                                    u_member2.bio AS member2_bio,
+                                    u_member3.username AS member3_username,
+                                    u_member3.university AS member3_university,
+                                    u_member3.email AS member3_email,
+                                    u_member3.first_name AS member3_first_name,
+                                    u_member3.last_name AS member3_last_name,
+                                    u_member3.phone AS member3_phone,
+                                    u_member3.coins AS member3_coins,
+                                    u_member3.bio AS member3_bio,
+                                    u_member4.username AS member4_username,
+                                    u_member4.university AS member4_university,
+                                    u_member4.email AS member4_email,
+                                    u_member4.first_name AS member4_first_name,
+                                    u_member4.last_name AS member4_last_name,
+                                    u_member4.phone AS member4_phone,
+                                    u_member4.coins AS member4_coins,
+                                    u_member4.bio AS member4_bio
+                                FROM sessions s
+                                LEFT JOIN users u_host ON s.host_id = u_host.id
+                                LEFT JOIN users u_member1 ON s.member1_id = u_member1.id
+                                LEFT JOIN users u_member2 ON s.member2_id = u_member2.id
+                                LEFT JOIN users u_member3 ON s.member3_id = u_member3.id
+                                LEFT JOIN users u_member4 ON s.member4_id = u_member4.id
+                                WHERE s.id = %s;
+                                """
+            cursor.execute(query_session_data, session_id)
+            session_data = cursor.fetchone()
+            
+            if session_data:
+                return jsonify(session_data), 200
+            else:
+                return jsonify(f"Session with id: {session_id} not found."), 404
+    return jsonify({"error": "Method not allowed"}), 405
 
 @app.route("/join_session", methods=['POST'])
 def join_session():

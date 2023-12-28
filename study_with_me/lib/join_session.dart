@@ -64,7 +64,7 @@ class _JoinSessionState extends State<JoinSession> {
   ) async {
     int? memberId = UserManager.loggedInUserId; // Get host ID from UserManager
 
-    final Uri uri = Uri.parse('http://10.0.2.2:5000/join_session');
+    final Uri uri = Uri.parse('http://127.0.0.1:5000/join_session');
 
     final Map<String, dynamic> requestData = {
       "member_id": memberId.toString(),
@@ -155,53 +155,23 @@ class _JoinSessionState extends State<JoinSession> {
             ),
           ), // Closing bracket for Padding widget
           Positioned(
-            bottom: 75.0,
-            right: 70.0,
-            child: Align(
-              alignment: Alignment.bottomRight,
-              child: SizedBox(
-                width: 50,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (selectedStartTime != null && selectedEndTime != null) {
-                      String subject = subjectController.text;
-                      String location = locationController.text;
-
-                      // Call joinSession with all the extracted values
-                      joinSession(
-                        context,
-                        subject,
-                        location,
-                        selectedStartTime!,
-                        selectedEndTime!,
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please select start and end times'),
-                        ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child: const Center(child: Icon(Icons.check)),
-                ),
-              ),
-            ),
-          ),
-          ElevatedButton(
-              onPressed: () => Navigator.push(
+            bottom: 75,
+            right: 75,
+            child:ElevatedButton(
+                  onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => AllSessionsTest(),
                     ),
                   ),
-              child: Text("sessions test"))
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  child:  Icon(Icons.check),
+                ),
+          ),
         ], // Closing bracket for children of Stack
       ), // Closing bracket for Stack
     );

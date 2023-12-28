@@ -64,7 +64,7 @@ def signup():
     last_name = data.get('last_name')
     phone = data.get('phone')
     
-    conn = pymysql.connect(**config1) 
+    conn = pymysql.connect(**config) 
 
     with conn.cursor() as cursor:
         query = "INSERT INTO users(username,password,university,email,first_name,last_name,phone) VALUES(%s,%s,%s,%s,%s,%s,%s)"
@@ -99,7 +99,7 @@ def create_session():
             print(host_id, subject, location, start_time, end_time)
             return jsonify({"error": "Incomplete data"}), 400  # Bad Request
 
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config)
 
         with conn.cursor() as cursor:
             query = "INSERT INTO sessions(host_id, subject, location, start_time, end_time, max_members) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -119,7 +119,7 @@ def get_session_data():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config)
         
         with conn.cursor() as cursor:
             query_session_data = "SELECT * FROM sessions WHERE id = %s"
@@ -137,7 +137,7 @@ def get_user_data():
     if request.method == 'GET':
         user_id = request.args.get('user_id')
         
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config)
         
         with conn.cursor() as cursor:
             query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio FROM users WHERE id = %s"
@@ -155,7 +155,7 @@ def get_session_details():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config)
         
         with conn.cursor() as cursor:
             query_session_data = """SELECT 
@@ -225,7 +225,7 @@ def join_session():
         session_id = data.get('session_id')
         member_id = data.get('member_id')  # Assuming the ID of the user joining
 
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config)
 
         with conn.cursor() as cursor:
             # Get session details and count current members
@@ -235,7 +235,7 @@ def join_session():
 
             members = [session_details[f'member{i}_id'] for i in range(1, 5)]
             if member_id in members:
-                return jsonify({"message": "User is already a member of this session", "session_id": session_id})
+                return jsonify({"message": "User is already a member of this session", "session_id": session_id}), 203
             if session_details['max_members'] > session_details['current_members']:
                 current_members = session_details['current_members']
                 if None in members:
@@ -245,11 +245,11 @@ def join_session():
                     query_update_member = f"UPDATE sessions SET member{index}_id = %s ,current_members = %s WHERE id = %s"
                     cursor.execute(query_update_member, (member_id,current_members, session_id))
                     conn.commit()
-                    return jsonify({"message": f"Joined session successfully as member {index}", "session_id": session_id})
+                    return jsonify({"message": f"Joined session successfully as member {index}", "session_id": session_id}), 200
                 else:
-                    return jsonify({"message": "Session is full", "session_id": session_id})
+                    return jsonify({"message": "Session is full", "session_id": session_id}), 201
             elif session_details['max_members'] == session_details['current_members']:
-                return jsonify({"message": "Session is full", "session_id": session_id})
+                return jsonify({"message": "Session is full", "session_id": session_id}), 202
 
     return jsonify({"error": "Method not allowed"}), 405
 

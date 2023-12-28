@@ -40,7 +40,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
 
   Future<Map<String, dynamic>> fetchSessionData() async {
     final url = Uri.parse(
-        'http://10.0.2.2:5000/get_session_details?session_id=${widget.sessionID}');
+        'http://127.0.0.1:5000/get_session_details?session_id=${widget.sessionID}');
 
     try {
       final response = await http.get(
@@ -63,7 +63,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
   }
 
   void joinSession(String sessionID, String user_id) async {
-    final url = Uri.parse('http://10.0.2.2:5000/join_session');
+    final url = Uri.parse('http://127.0.0.1:5000/join_session');
 
     final Map<String, dynamic> requestData = {
       "session_id": sessionID,
@@ -139,7 +139,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Text(
-                        "${UserManager.username} you are the host!",
+                        "Your host",
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 25,

@@ -118,81 +118,94 @@ class _StartSessionState extends State<StartSession> {
       appBar: AppBar(
         backgroundColor: const Color(0xFFDDEBDD),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: subjectController,
-                decoration: const InputDecoration(
-                  labelText: 'Subject',
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Location',
-                ),
-              ),
-              TextFormField(
-                controller: maxMembersController,
-                decoration: const InputDecoration(
-                  labelText: 'Members(1-5)',
-                ),
-              ),
-              const SizedBox(height: 16),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _selectDateTime(true); // Open start date time picker
-                    },
-                    child: Text(
-                      selectedStartTime != null
-                          ? 'Start Time: ${selectedStartTime!.toLocal()}'
-                          : 'Select Start Time',
+                  TextFormField(
+                    controller: subjectController,
+                    decoration: const InputDecoration(
+                      labelText: 'Subject',
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _selectDateTime(false); // Open end date time picker
-                    },
-                    child: Text(
-                      selectedEndTime != null
-                          ? 'End Time: ${selectedEndTime!.toLocal()}'
-                          : 'Select End Time',
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: locationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Location',
                     ),
                   ),
+                  TextFormField(
+                    controller: maxMembersController,
+                    decoration: const InputDecoration(
+                      labelText: 'Members(1-5)',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _selectDateTime(true); // Open start date time picker
+                        },
+                        child: Text(
+                          selectedStartTime != null
+                              ? 'Start Time: ${selectedStartTime!.toLocal()}'
+                              : 'Select Start Time',
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _selectDateTime(false); // Open end date time picker
+                        },
+                        child: Text(
+                          selectedEndTime != null
+                              ? 'End Time: ${selectedEndTime!.toLocal()}'
+                              : 'Select End Time',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
                 ],
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  if (selectedStartTime != null && selectedEndTime != null) {
-                    String subject = subjectController.text;
-                    String location = locationController.text;
-                    String maxMembers = maxMembersController.text;
-
-                    // Call createSession with all the extracted values
-                    createSession(context, subject, location,
-                        selectedStartTime!, selectedEndTime!, maxMembers);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please select start and end times'),
-                      ),
-                    );
-                  }
-                },
-                child: const Text('Start Session'),
-              ),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            bottom: 75,
+            right: 75,
+            child: ElevatedButton(
+              onPressed: () {
+                if (selectedStartTime != null && selectedEndTime != null) {
+                  String subject = subjectController.text;
+                  String location = locationController.text;
+                  String maxMembers = maxMembersController.text;
+
+                  // Call createSession with all the extracted values
+                  createSession(context, subject, location, selectedStartTime!,
+                      selectedEndTime!, maxMembers);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please select start and end times'),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    )
+                  ),
+              child: const Icon(Icons.check),
+            ),
+          ),
+        ],
       ),
     );
   }

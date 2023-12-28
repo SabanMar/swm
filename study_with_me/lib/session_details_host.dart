@@ -40,7 +40,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
 
   Future<Map<String, dynamic>> fetchSessionData() async {
     final url = Uri.parse(
-        'http://10.0.2.2:5000/get_session_details?session_id=${widget.sessionID}');
+        'http://127.0.0.1:5000/get_session_details?session_id=${widget.sessionID}');
 
     try {
       final response = await http.get(

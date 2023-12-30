@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/config.dart';
 import 'package:study_with_me/session_details_memder.dart';
 
 class AllSessionsTest extends StatefulWidget {
@@ -21,7 +22,7 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
   }
 
   Future<void> fetchAllSessions() async {
-    final url = Uri.parse('http://127.0.0.1:5000/get_all_sessions');
+    final url = Uri.parse('${config.localhost}/get_all_sessions');
 
     final response = await http.get(
       url,

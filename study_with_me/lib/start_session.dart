@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:study_with_me/config.dart';
 import 'package:study_with_me/session_details_host.dart';
 import 'package:study_with_me/usermanager.dart';
 import 'package:http/http.dart' as http;
@@ -65,7 +66,7 @@ class _StartSessionState extends State<StartSession> {
       String maxMembers) async {
     int? hostId = UserManager.loggedInUserId; // Get host ID from UserManager
 
-    final Uri uri = Uri.parse('http://127.0.0.1:5000/create_session');
+    final Uri uri = Uri.parse('${config.localhost}/create_session');
 
     final Map<String, dynamic> requestData = {
       "host_id": hostId.toString(),
@@ -198,10 +199,9 @@ class _StartSessionState extends State<StartSession> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    )
-                  ),
+                  shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              )),
               child: const Icon(Icons.check),
             ),
           ),

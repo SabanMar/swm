@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/config.dart';
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
 
@@ -25,7 +26,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
     super.initState();
     _sessionDataFuture = fetchSessionData();
     // Set up a periodic timer to refresh the session data every 10 seconds
-    _timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    _timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
       setState(() {
         _sessionDataFuture = fetchSessionData();
       });
@@ -40,7 +41,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
 
   Future<Map<String, dynamic>> fetchSessionData() async {
     final url = Uri.parse(
-        'http://127.0.0.1:5000/get_session_details?session_id=${widget.sessionID}');
+        '${config.localhost}/get_session_details?session_id=${widget.sessionID}');
 
     try {
       final response = await http.get(

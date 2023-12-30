@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:study_with_me/config.dart';
 import 'package:study_with_me/signup.dart';
 import 'usermanager.dart';
 import 'homepage.dart';
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController passwordController = TextEditingController();
 
   Future<void> _login(String username, String password) async {
-    final url = Uri.parse('http://127.0.0.1:5000/login');
+    final url = Uri.parse('${config.localhost}/login');
 
     final response = await http.post(
       url,

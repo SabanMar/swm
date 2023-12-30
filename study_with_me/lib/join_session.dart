@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:study_with_me/all_session_test.dart';
+import 'package:study_with_me/config.dart';
 import 'package:study_with_me/usermanager.dart';
 import 'package:http/http.dart' as http;
 
@@ -64,7 +65,7 @@ class _JoinSessionState extends State<JoinSession> {
   ) async {
     int? memberId = UserManager.loggedInUserId; // Get host ID from UserManager
 
-    final Uri uri = Uri.parse('http://127.0.0.1:5000/join_session');
+    final Uri uri = Uri.parse('${config.localhost}/join_session');
 
     final Map<String, dynamic> requestData = {
       "member_id": memberId.toString(),
@@ -157,20 +158,20 @@ class _JoinSessionState extends State<JoinSession> {
           Positioned(
             bottom: 75,
             right: 75,
-            child:ElevatedButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AllSessionsTest(),
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                  ),
-                  child:  Icon(Icons.check),
+            child: ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AllSessionsTest(),
                 ),
+              ),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              child: Icon(Icons.check),
+            ),
           ),
         ], // Closing bracket for children of Stack
       ), // Closing bracket for Stack

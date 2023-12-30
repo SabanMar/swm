@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:study_with_me/session_details_host.dart';
 import 'package:study_with_me/usermanager.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/config.dart';
 
 class StartSession extends StatefulWidget {
   const StartSession({Key? key});
@@ -65,7 +66,7 @@ class _StartSessionState extends State<StartSession> {
       String maxMembers) async {
     int? hostId = UserManager.loggedInUserId; // Get host ID from UserManager
 
-    final Uri uri = Uri.parse('http://127.0.0.1:5000/create_session');
+    final Uri uri = Uri.parse('${config.localhost}/create_session');
 
     final Map<String, dynamic> requestData = {
       "host_id": hostId.toString(),
@@ -122,7 +123,6 @@ class _StartSessionState extends State<StartSession> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -175,7 +175,6 @@ class _StartSessionState extends State<StartSession> {
                 ],
               ),
             ),
-          ),
           Positioned(
             bottom: 75,
             right: 75,

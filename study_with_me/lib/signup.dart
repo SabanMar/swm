@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_with_me/login.dart';
+import 'package:study_with_me/config.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -36,7 +37,7 @@ class _SignUpPageState extends State<SignUp> {
 
   Future<void> signup(String fullName, String email, String username,
       String password, String uni, String phone) async {
-    final url = Uri.parse('http://127.0.0.1:5000/signup');
+    final url = Uri.parse('${config.localhost}/signup');
     Map<String, String> names = splitFullName(fullName);
 
     Map<String, dynamic> requestBody = {

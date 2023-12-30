@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
+
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
 
@@ -24,6 +28,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
   void initState() {
     super.initState();
     _sessionDataFuture = fetchSessionData();
+    _checkPermissions();
     // Set up a periodic timer to refresh the session data every 10 seconds
     _timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
       setState(() {
@@ -40,7 +45,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
 
   Future<Map<String, dynamic>> fetchSessionData() async {
     final url = Uri.parse(
-        'http://127.0.0.1:5000/get_session_details?session_id=${widget.sessionID}');
+        '${config.localhost}/get_session_details?session_id=${widget.sessionID}');
 
     try {
       final response = await http.get(
@@ -65,6 +70,41 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
   DateTime parseDateString(String dateString) {
     DateFormat format = DateFormat("E, d MMM yyyy HH:mm:ss 'GMT'");
     return format.parse(dateString);
+  }
+
+  bool canMakeCalls = false; // Flag to determine if calls are allowed
+
+Future<void> _checkPermissions() async {
+  var status = await Permission.phone.status;
+  if (!status.isGranted) {
+    status = await Permission.phone.request();
+    if (status.isGranted) {
+      setState(() {
+        canMakeCalls = true;
+      });
+    } else {
+      // Handle denied permissions here
+      setState(() {
+        canMakeCalls = false;
+      });
+    }
+  } else {
+    setState(() {
+      canMakeCalls = true;
+    });
+  }
+}
+
+  void _makeCall(String phoneNumber) async {
+    if (canMakeCalls) {
+      if (await canLaunch('tel:$phoneNumber')) {
+        await launch('tel:$phoneNumber');
+      } else {
+        print('Could not launch $phoneNumber');
+      }
+    } else {
+      print('Phone call permission not granted.');
+    }
   }
 
   @override
@@ -189,13 +229,27 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                             border: Border.all(color: Colors.black),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Center(
-                            child: Text(
-                              sessionData['member${i}_id'] != null
-                                  ? 'Member ${i}: ${sessionData['member${i}_id']}, Member name: ${sessionData['member${i}_username']}'
-                                  : 'Empty Member $i',
-                              textAlign: TextAlign.center,
-                            ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  sessionData['member${i}_id'] != null
+                                      ? 'Member ${i}: ${sessionData['member${i}_id']}, Member name: ${sessionData['member${i}_username']}'
+                                      : 'Empty Member $i',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.phone),
+                                onPressed: () {
+                                  // Implement the call functionality here for member i
+                                  String phoneNumber =
+                                      sessionData['member${i}_phone'];
+                                  _makeCall(phoneNumber);
+                                },
+                              ),
+                            ],
                           ),
                         ),
                     ],

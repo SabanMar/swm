@@ -5,7 +5,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
-
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
 
@@ -30,7 +29,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
     _sessionDataFuture = fetchSessionData();
     _checkPermissions();
     // Set up a periodic timer to refresh the session data every 10 seconds
-    _timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    _timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
       setState(() {
         _sessionDataFuture = fetchSessionData();
       });

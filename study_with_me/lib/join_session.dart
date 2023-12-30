@@ -166,10 +166,11 @@ class _JoinSessionState extends State<JoinSession> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              )),
-              child: const Icon(Icons.check),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              child: Icon(Icons.check),
             ),
           ),
         ], // Closing bracket for children of Stack

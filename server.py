@@ -5,7 +5,7 @@ import secrets
 from datetime import datetime
 
 # Details about base
-config = {
+config1 = {
     "user": "root",
     "password": "2255",
     "host": "localhost",
@@ -14,7 +14,7 @@ config = {
     "cursorclass": pymysql.cursors.DictCursor,
 }
 
-config1 = {
+config = {
     "user": "root",
     "password": "2403",
     "host": "localhost",

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:study_with_me/config.dart';
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
+import 'package:study_with_me/config.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SessionDetailsUser extends StatefulWidget {
   final int sessionID;
@@ -29,7 +29,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
     _sessionDataFuture = fetchSessionData();
     _checkPermissions();
     // Set up a periodic timer to refresh the session data every 10 seconds
-    _timer = Timer.periodic(Duration(seconds: 10), (Timer t) {
+    _timer = Timer.periodic(Duration(seconds: 5), (Timer t) {
       setState(() {
         _sessionDataFuture = fetchSessionData();
       });
@@ -67,7 +67,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
   }
 
   void joinSession(String sessionID, String user_id) async {
-    final url = Uri.parse('http://127.0.0.1:5000/join_session');
+    final url = Uri.parse('${config.localhost}/join_session');
 
     final Map<String, dynamic> requestData = {
       "session_id": sessionID,

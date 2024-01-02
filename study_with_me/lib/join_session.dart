@@ -159,12 +159,24 @@ class _JoinSessionState extends State<JoinSession> {
             bottom: 75,
             right: 75,
             child: ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AllSessionsTest(),
-                ),
-              ),
+              onPressed: () {
+                print('Subject: ${subjectController.text}');
+                print('Location: ${locationController.text}');
+                print('Start Time: $selectedStartTime');
+                print('End Time: $selectedEndTime');
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AllSessionsTest(
+                      subject: subjectController.text,
+                      location: locationController.text,
+                      startTime: selectedStartTime,
+                      endTime: selectedEndTime,
+                    ),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0),

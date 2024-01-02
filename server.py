@@ -36,7 +36,7 @@ def login():
         username = data.get('username')
         password = data.get('password')
 
-        conn = pymysql.connect(**config) # connection with the database
+        conn = pymysql.connect(**config1) # connection with the database
 
         with conn.cursor() as cursor:
             query = "SELECT * FROM users WHERE username = %s AND password = %s"
@@ -64,7 +64,7 @@ def signup():
     last_name = data.get('last_name')
     phone = data.get('phone')
     
-    conn = pymysql.connect(**config) 
+    conn = pymysql.connect(**config1) 
 
     with conn.cursor() as cursor:
         query = "INSERT INTO users(username,password,university,email,first_name,last_name,phone) VALUES(%s,%s,%s,%s,%s,%s,%s)"
@@ -99,7 +99,7 @@ def create_session():
             print(host_id, subject, location, start_time, end_time)
             return jsonify({"error": "Incomplete data"}), 400  # Bad Request
 
-        conn = pymysql.connect(**config)
+        conn = pymysql.connect(**config1)
 
         with conn.cursor() as cursor:
             query = "INSERT INTO sessions(host_id, subject, location, start_time, end_time, max_members) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -119,7 +119,7 @@ def get_session_data():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config)
+        conn = pymysql.connect(**config1)
         
         with conn.cursor() as cursor:
             query_session_data = "SELECT * FROM sessions WHERE id = %s"
@@ -137,7 +137,7 @@ def get_user_data():
     if request.method == 'GET':
         user_id = request.args.get('user_id')
         
-        conn = pymysql.connect(**config)
+        conn = pymysql.connect(**config1)
         
         with conn.cursor() as cursor:
             query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio FROM users WHERE id = %s"
@@ -155,7 +155,7 @@ def get_session_details():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config)
+        conn = pymysql.connect(**config1)
         
         with conn.cursor() as cursor:
             query_session_data = """SELECT 
@@ -217,6 +217,7 @@ def get_session_details():
                 return jsonify(f"Session with id: {session_id} not found."), 404
     return jsonify({"error": "Method not allowed"}), 405
 
+
 @app.route("/join_session", methods=['POST'])
 def join_session():
     if request.method == 'POST':
@@ -225,7 +226,7 @@ def join_session():
         session_id = data.get('session_id')
         member_id = data.get('member_id')  # Assuming the ID of the user joining
 
-        conn = pymysql.connect(**config)
+        conn = pymysql.connect(**config1)
 
         with conn.cursor() as cursor:
             # Get session details and count current members
@@ -254,22 +255,50 @@ def join_session():
     return jsonify({"error": "Method not allowed"}), 405
 
 
-@app.route("/get_all_sessions", methods=['GET']) 
+@app.route("/get_all_sessions", methods=['POST'])
 def get_all_sessions():
-    if request.method == 'GET':
-        
-        conn = pymysql.connect(**config)
-        
+    if request.method == 'POST':
+        data = request.get_json()
+        subject = data.get('subject')
+        location = data.get('location')
+        start_time_str = data.get('start_time')
+        end_time_str = data.get('end_time')
+
+        conn = pymysql.connect(**config1)
+        query_session_data = "SELECT * FROM sessions WHERE 1=1"
+        parameters = []
+
+        if subject:
+            query_session_data += " AND subject = %s"
+            parameters.append(subject)
+        if location:
+            query_session_data += " AND location = %s"
+            parameters.append(location)
+
+        current_time = datetime.now()
+
+        if start_time_str:
+            start_time = datetime.strptime(start_time_str, "%Y-%m-%dT%H:%M:%S.%f")
+            if start_time >= current_time:
+                query_session_data += " AND start_time = %s"
+                parameters.append(start_time)
+        if end_time_str:
+            end_time = datetime.strptime(end_time_str, "%Y-%m-%dT%H:%M:%S.%f")
+            if end_time >= current_time:
+                query_session_data += " AND end_time = %s"
+                parameters.append(end_time)
+
         with conn.cursor() as cursor:
-            query_session_data = "SELECT * FROM sessions"
-            cursor.execute(query_session_data)
+            cursor.execute(query_session_data, tuple(parameters))
             session_data = cursor.fetchall()
-            
+
             if session_data:
                 return jsonify(session_data), 200
             else:
-                return jsonify(f"No sessions found."), 404
+                return jsonify({"message": "No sessions found."}), 404
+
     return jsonify({"error": "Method not allowed"}), 405
+
 
 
 if __name__ == "__main__":

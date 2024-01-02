@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'package:study_with_me/config.dart';
 import 'package:study_with_me/login.dart';
 
-
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
 

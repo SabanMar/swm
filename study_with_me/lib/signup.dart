@@ -37,6 +37,63 @@ class _SignUpPageState extends State<SignUp> {
 
   Future<void> signup(String fullName, String email, String username,
       String password, String uni, String phone) async {
+    String? fullNameError = _validateField(fullName, 'Full Name');
+    String? emailError = _validateField(email, 'Email');
+    String? usernameError = _validateField(username, 'Username');
+    String? passwordError = _validateField(password, 'Password');
+    String? confirmPasswordError =
+        _validateField(ConfirmPasswordController.text, 'Confirm Password');
+    String? universityError = _validateField(uni, 'University/School');
+    String? phoneError = _validateField(phone, 'Phone');
+
+    if (fullNameError != null ||
+        emailError != null ||
+        usernameError != null ||
+        passwordError != null ||
+        confirmPasswordError != null ||
+        universityError != null ||
+        phoneError != null) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Sign Up Failed'),
+            content: const Text('Please fill in all required fields.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    if (password != ConfirmPasswordController.text) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Sign Up Failed'),
+            content: const Text('Passwords do not match.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
     final url = Uri.parse('${config.localhost}/signup');
     Map<String, String> names = splitFullName(fullName);
 
@@ -86,10 +143,18 @@ class _SignUpPageState extends State<SignUp> {
     }
   }
 
+  String? _validateField(String value, String fieldName) {
+    if (value.isEmpty) {
+      return 'Please enter $fieldName';
+    }
+    return null; // Return null if validation succeeds
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFFDDEBDD),
         title: const Text('Sign Up'),
       ),
       body: Padding(

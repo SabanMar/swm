@@ -34,5 +34,6 @@ flutter:
   - assets/images/slash_screen.png
   - assets/images/registration.png
   - assets/images/login.png
+  - assets/images/avatars/
 
   

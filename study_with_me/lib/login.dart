@@ -58,7 +58,6 @@ class _LoginPageState extends State<LoginPage> {
       UserManager.university = responseData['university'];
       UserManager.phone = responseData['phone'];
       UserManager.coins = responseData['coins'];
-
       // Successful login
       Navigator.push(
         context,

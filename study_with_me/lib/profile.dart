@@ -5,6 +5,7 @@ import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'get_started.dart';
 import 'usermanager.dart';
+import 'change_password.dart';
 
 class Profile extends StatefulWidget {
   final int userID;
@@ -139,12 +140,18 @@ class _ProfileState extends State<Profile> {
                   ),
                   PopupMenuButton<String>(
                     onSelected: (value) {
-                      if (value == 'Sign out') {
+                      if (value == 'Log out') {
                         logout(UserManager.loggedInUserId ?? 0);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const GetStarted()));
+                      }
+                      else if (value == 'Change Password') {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChangePasswordPage()));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -161,8 +168,8 @@ class _ProfileState extends State<Profile> {
                         child: Text('Forgot Password'),
                       ),
                       PopupMenuItem<String>(
-                        value: 'Sign out',
-                        child: Text('Sign out'),
+                        value: 'Log out',
+                        child: Text('Log out'),
                       ),
                     ],
                   ),

@@ -3,6 +3,7 @@ import 'package:study_with_me/get_started.dart';
 import 'package:study_with_me/start_session.dart';
 import 'package:study_with_me/join_session.dart';
 import 'usermanager.dart';
+import 'profile.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
@@ -18,6 +19,22 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFDDEBDD),
+        actions: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(12.0), // Add padding/margin around the icon
+            child: IconButton(
+              icon: const Icon(Icons.account_circle),
+              iconSize: 40,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  // ?? 0 set the userID = 0 if the UserManager.loggedInUserId is null
+                  MaterialPageRoute(builder: (context) => Profile(userID: UserManager.loggedInUserId ?? 0)),
+                );
+              },
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: Column(

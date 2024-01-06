@@ -140,11 +140,17 @@ def get_user_data():
         conn = pymysql.connect(**config1)
         
         with conn.cursor() as cursor:
-            query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio FROM users WHERE id = %s"
+            query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio, avatar FROM users WHERE id = %s"
             cursor.execute(query_user_data, user_id)
             user_data = cursor.fetchone()
             
             if user_data:
+                query_avatars = "SELECT a.* FROM avatar a INNER JOIN users_avatars ua ON a.id = ua.avatar_id INNER JOIN users u WHERE u.id = %s"
+                cursor.execute(query_avatars, user_id)
+                avatars_data = cursor.fetchall()
+                # Adding avatars data to the user_data dictionary
+                user_data['avatars'] = [avatar[0] for avatar in avatars_data]
+
                 return jsonify(user_data), 200
             else:
                 return jsonify(f"User with id: {user_id} not found."), 404
@@ -298,6 +304,8 @@ def get_all_sessions():
                 return jsonify({"message": "No sessions found."}), 404
 
     return jsonify({"error": "Method not allowed"}), 405
+
+
 
 
 

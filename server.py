@@ -3,6 +3,7 @@ import pymysql
 import secrets
 #from flask_socketio import SocketIO
 from datetime import datetime
+from flask_cors import CORS
 
 # Details about base
 config1 = {
@@ -10,6 +11,14 @@ config1 = {
     "password": "2255",
     "host": "localhost",
     "database": "SwM",
+    "charset": "utf8mb4",
+    "cursorclass": pymysql.cursors.DictCursor,
+}
+config2 = {
+    "user": "root",
+    "password": "maria123",
+    "host": "localhost",
+    "database": "swm",
     "charset": "utf8mb4",
     "cursorclass": pymysql.cursors.DictCursor,
 }
@@ -27,6 +36,7 @@ app = Flask(__name__)
 # we use keys in order to store the user's data in sessions.
 app.secret_key = secrets.token_hex(24)
 #socketio = SocketIO(app)
+CORS(app)
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -36,7 +46,7 @@ def login():
         username = data.get('username')
         password = data.get('password')
 
-        conn = pymysql.connect(**config1) # connection with the database
+        conn = pymysql.connect(**config2) # connection with the database
 
         with conn.cursor() as cursor:
             query = "SELECT * FROM users WHERE username = %s AND password = %s"
@@ -64,7 +74,7 @@ def signup():
     last_name = data.get('last_name')
     phone = data.get('phone')
     
-    conn = pymysql.connect(**config1) 
+    conn = pymysql.connect(**config2) 
 
     with conn.cursor() as cursor:
         query = "INSERT INTO users(username,password,university,email,first_name,last_name,phone) VALUES(%s,%s,%s,%s,%s,%s,%s)"
@@ -99,7 +109,7 @@ def create_session():
             print(host_id, subject, location, start_time, end_time)
             return jsonify({"error": "Incomplete data"}), 400  # Bad Request
 
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config2)
 
         with conn.cursor() as cursor:
             query = "INSERT INTO sessions(host_id, subject, location, start_time, end_time, max_members) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -119,7 +129,7 @@ def get_session_data():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config2)
         
         with conn.cursor() as cursor:
             query_session_data = "SELECT * FROM sessions WHERE id = %s"
@@ -137,7 +147,7 @@ def get_user_data():
     if request.method == 'GET':
         user_id = request.args.get('user_id')
         
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config2)
         
         with conn.cursor() as cursor:
             query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio, avatar FROM users WHERE id = %s"
@@ -161,7 +171,7 @@ def get_session_details():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config2)
         
         with conn.cursor() as cursor:
             query_session_data = """SELECT 
@@ -232,7 +242,7 @@ def join_session():
         session_id = data.get('session_id')
         member_id = data.get('member_id')  # Assuming the ID of the user joining
 
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config2)
 
         with conn.cursor() as cursor:
             # Get session details and count current members
@@ -270,7 +280,7 @@ def get_all_sessions():
         start_time_str = data.get('start_time')
         end_time_str = data.get('end_time')
 
-        conn = pymysql.connect(**config1)
+        conn = pymysql.connect(**config2)
         query_session_data = "SELECT * FROM sessions WHERE 1=1"
         parameters = []
 

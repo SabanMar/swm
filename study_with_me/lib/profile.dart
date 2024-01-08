@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:study_with_me/available_avatars.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_with_me/homepage.dart';
@@ -64,10 +65,11 @@ class _ProfileState extends State<Profile> {
 
   List<String> avatarList() {
     List<String> images = [];
-    for (int i = 0; i <= 40; i++) {
+    for (int i = 1; i <= 40; i++) {
       String imagePath = 'assets/images/avatars/Frame 1 ($i).png';
       images.add(imagePath);
     }
+    images.add('assets/images/avatars/Frame 1.png');
     return images;
   }
 
@@ -123,7 +125,43 @@ class _ProfileState extends State<Profile> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
-                          SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                SizedBox(width: 5),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.shopping_basket,
+                                    color: Colors.green),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AvailableAvatars(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                SizedBox(width: 160),
+                                Image.asset(
+                                  'assets/images/coin.png',
+                                  width: 22,
+                                  height: 22,
+                                ),
+                                SizedBox(width: 5),
+                                Text('${userData['coins']}',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.yellow,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
                           CircleAvatar(
                             backgroundImage:
                                 AssetImage(getSelectedAvatar(userData)),

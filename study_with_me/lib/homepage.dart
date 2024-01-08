@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:study_with_me/get_started.dart';
 import 'package:study_with_me/start_session.dart';
 import 'package:study_with_me/join_session.dart';
 import 'usermanager.dart';
@@ -96,17 +95,6 @@ class HomePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Call logout function when the button is presse
-                logout(userId!);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const GetStarted()));
-              },
-              child: const Text('Logout'),
-            ),
           ],
         ),
       ),

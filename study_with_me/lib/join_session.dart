@@ -65,7 +65,7 @@ class _JoinSessionState extends State<JoinSession> {
   ) async {
     int? memberId = UserManager.loggedInUserId; // Get host ID from UserManager
 
-    final Uri uri = Uri.parse('${config.localhost}/join_session');
+    final Uri url = Uri.parse('${config.localhost}/join_session');
 
     final Map<String, dynamic> requestData = {
       "member_id": memberId.toString(),
@@ -77,7 +77,7 @@ class _JoinSessionState extends State<JoinSession> {
 
     try {
       final response = await http.post(
-        uri,
+        url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestData),
       );

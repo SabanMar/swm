@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:study_with_me/available_avatars.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/homepage.dart';
 import 'get_started.dart';
 import 'usermanager.dart';
+import 'change_password.dart';
 
 class Profile extends StatefulWidget {
   final int userID;
@@ -19,10 +22,13 @@ class _ProfileState extends State<Profile> {
   Map<String, dynamic> userData = {};
   late Future<Map<String, dynamic>> _userDataFuture;
 
+  List<String> avatarImages = [];
+
   @override
   void initState() {
     super.initState();
     _userDataFuture = fetchUserData();
+    avatarImages = avatarList();
   }
 
   @override
@@ -57,6 +63,26 @@ class _ProfileState extends State<Profile> {
     UserManager.loggedInUserId = null;
   }
 
+  List<String> avatarList() {
+    List<String> images = [];
+    for (int i = 1; i <= 40; i++) {
+      String imagePath = 'assets/images/avatars/Frame 1 ($i).png';
+      images.add(imagePath);
+    }
+    images.add('assets/images/avatars/Frame 1.png');
+    return images;
+  }
+
+  String getSelectedAvatar(Map<String, dynamic> userData) {
+    String? userAvatar = userData['avatar']; // the file name in database
+    for (String avatarImage in avatarImages) {
+      if (userAvatar != null && avatarImage.contains(userAvatar)) {
+        return avatarImage; // Return the matched avatar
+      }
+    }
+    return 'assets/images/avatars/Frame 1.png'; // Default avatar
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,7 +114,7 @@ class _ProfileState extends State<Profile> {
                   ),
                   const SizedBox(height: 20),
                   Container(
-                    height: 366.42,
+                    height: 466.42,
                     width: 287.89,
                     margin: const EdgeInsets.only(left: 20, right: 20),
                     decoration: BoxDecoration(
@@ -99,6 +125,49 @@ class _ProfileState extends State<Profile> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                SizedBox(width: 5),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.shopping_basket,
+                                    color: Colors.green),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AvailableAvatars(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                SizedBox(width: 160),
+                                Image.asset(
+                                  'assets/images/coin.png',
+                                  width: 22,
+                                  height: 22,
+                                ),
+                                SizedBox(width: 5),
+                                Text('${userData['coins']}',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.yellow,
+                                      fontWeight: FontWeight.bold,
+                                    )),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                          CircleAvatar(
+                            backgroundImage:
+                                AssetImage(getSelectedAvatar(userData)),
+                            radius: 50,
+                          ),
+                          SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
@@ -115,7 +184,6 @@ class _ProfileState extends State<Profile> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
                           Text(
                             '${userData['username']}',
                             style: TextStyle(fontSize: 15, color: Colors.black),
@@ -126,9 +194,13 @@ class _ProfileState extends State<Profile> {
                             style: TextStyle(fontSize: 15, color: Colors.black),
                           ),
                           SizedBox(height: 10),
-                          Text(
-                            '${userData['bio']}',
-                            style: TextStyle(fontSize: 15, color: Colors.black),
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              '${userData['bio']}',
+                              style:
+                                  TextStyle(fontSize: 12, color: Colors.black),
+                            ),
                           ),
                         ]),
                   ),
@@ -139,12 +211,17 @@ class _ProfileState extends State<Profile> {
                   ),
                   PopupMenuButton<String>(
                     onSelected: (value) {
-                      if (value == 'Sign out') {
+                      if (value == 'Log out') {
                         logout(UserManager.loggedInUserId ?? 0);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const GetStarted()));
+                      } else if (value == 'Change Password') {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChangePasswordPage()));
                       }
                     },
                     itemBuilder: (BuildContext context) => [
@@ -161,8 +238,38 @@ class _ProfileState extends State<Profile> {
                         child: Text('Forgot Password'),
                       ),
                       PopupMenuItem<String>(
-                        value: 'Sign out',
-                        child: Text('Sign out'),
+                        value: 'Log out',
+                        child: Text('Log out'),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: IconButton(
+                          icon: const Icon(Icons.archive_rounded),
+                          iconSize: 40,
+                          onPressed: () {
+                            // Implement the functionality for the archive button
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(
+                            12.0), // Add padding/margin around the icon
+                        child: IconButton(
+                          icon: const Icon(Icons.home),
+                          iconSize: 40,
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                // ?? 0 set the userID = 0 if the UserManager.loggedInUserId is null
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage()));
+                          },
+                        ),
                       ),
                     ],
                   ),

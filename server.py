@@ -150,7 +150,7 @@ def get_user_data():
         conn = pymysql.connect(**config2)
         
         with conn.cursor() as cursor:
-            query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio, avatar FROM users WHERE id = %s"
+            query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio FROM users WHERE id = %s"
             cursor.execute(query_user_data, user_id)
             user_data = cursor.fetchone()
             
@@ -160,11 +160,34 @@ def get_user_data():
                 avatars_data = cursor.fetchall()
                 # Adding avatars data to the user_data dictionary
                 user_data['avatars'] = [avatar[0] for avatar in avatars_data]
+                query_photo_profile = "SELECT a.id FROM avatar a INNER JOIN users u ON a.id = u.avatar WHERE u.id = %s"
+                cursor.execute(query_photo_profile, user_id)
+                photo_profile = cursor.fetchone()
+                user_data['avatar'] = str(photo_profile['id'])
 
                 return jsonify(user_data), 200
             else:
                 return jsonify(f"User with id: {user_id} not found."), 404
     return jsonify({"error": "Method not allowed"}), 405
+
+@app.route("/change_password", methods=['POST'])
+def change_password():
+    if request.method == 'POST':
+        data = request.get_json()
+        user_id = data.get('user_id')
+        new_password = data.get('new_password')
+        old_password = data.get('old_password')
+        conn = pymysql.connect(**config1)
+        
+        with conn.cursor() as cursor:
+            query = "UPDATE users SET password = %s WHERE id = %s AND password = %s"
+            cursor.execute(query,(new_password,user_id,old_password))
+            conn.commit()
+
+        return jsonify(user_id), 200
+    
+    return jsonify({"error": "Method not allowed"}), 405
+        
 
 @app.route("/get_session_details", methods=['GET']) 
 def get_session_details():
@@ -314,9 +337,6 @@ def get_all_sessions():
                 return jsonify({"message": "No sessions found."}), 404
 
     return jsonify({"error": "Method not allowed"}), 405
-
-
-
 
 
 if __name__ == "__main__":

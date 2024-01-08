@@ -36,6 +36,9 @@ CREATE TABLE `avatar` (
 
 LOCK TABLES `avatar` WRITE;
 /*!40000 ALTER TABLE `avatar` DISABLE KEYS */;
+INSERT INTO `avatar` VALUES
+(1,10,'Frame 1 (1).png'),
+(2,15,'assets/images/avatars/Frame 1 (2).png');
 /*!40000 ALTER TABLE `avatar` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -98,7 +101,7 @@ CREATE TABLE `sessions` (
   CONSTRAINT `member2_idfk` FOREIGN KEY (`member2_id`) REFERENCES `users` (`id`),
   CONSTRAINT `member3_idfk` FOREIGN KEY (`member3_id`) REFERENCES `users` (`id`),
   CONSTRAINT `member4_idfk` FOREIGN KEY (`member4_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -109,8 +112,9 @@ LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
 INSERT INTO `sessions` VALUES
 (6,19,22,NULL,NULL,NULL,'Maths','Zografou','2023-12-20 08:30:00','2023-12-20 10:00:00',2,2,NULL,NULL),
-(7,18,NULL,NULL,NULL,NULL,'philosophy','kick','2023-12-20 15:00:00','2023-12-20 17:00:00',5,1,NULL,NULL),
-(8,15,17,18,NULL,NULL,'Phycology','vivianospito','2023-12-30 12:00:00','2023-12-30 15:00:00',3,3,NULL,NULL);
+(8,15,17,18,NULL,NULL,'Phycology','vivianospito','2023-12-30 12:00:00','2023-12-30 15:00:00',3,3,NULL,NULL),
+(10,17,NULL,NULL,NULL,NULL,'Maths','Sabanospito','2024-01-03 20:00:00','2024-01-03 23:00:00',3,1,NULL,NULL),
+(11,18,18,NULL,NULL,NULL,'history','koukaki','2024-01-06 16:00:00','2024-01-05 19:00:00',3,2,NULL,NULL);
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -137,7 +141,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `unique_username` (`username`),
   UNIQUE KEY `unique_password` (`password`),
   UNIQUE KEY `unique_email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,15 +151,17 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(11,'dimitra','222','NTUA','dgini@ehotmail.com','marianthi','metaxaki','6934567890',0,NULL,NULL),
-(12,'maria','1234','NTUA','sabmar@ehotmail.com','maria','sabani','6934567890',0,NULL,NULL),
+(11,'dimitra','1','NTUA','dgini@ehotmail.com','marianthi','metaxaki','6934567890',0,NULL,NULL),
+(12,'maria','234','NTUA','sabmar@ehotmail.com','maria','sabani','6934567890',0,NULL,NULL),
 (14,'thoubi','333','NTUA','mar@ehotmail.com','marianthi','metaxaki','6988092861',0,NULL,NULL),
 (15,'vivian','111','NTUA','viviaan@ehotmail.com','Vivian','Thanou','6988092863',0,NULL,NULL),
 (16,'valia','678','NTUA','salia@ehotmail.com','Valia','Samara','6988052863',0,NULL,NULL),
 (17,'petros','000','Aristotelio','petrospil@ehotmail.com','Petros','Piliouris','6988052425',0,NULL,NULL),
-(18,'eleni','909','UPEC','elenisabani@ehotmail.com','Helen','Sabani','6983672097',0,NULL,NULL),
+(18,'eleni','999','UPEC','elenisabani@ehotmail.com','Helen','Sabani','6983672097',0,'Just a girl who loves nature and hanging out with friends',2),
 (19,'valaki','000000','NTUA','valia@gmail.com','Valia','Samara','3245678',0,NULL,NULL),
-(22,'jo','8989','Harvard','jo@gmail.com','Jo','Goldberg','9834562789',0,NULL,NULL);
+(22,'jo','8989','Harvard','jo@gmail.com','Jo','Goldberg','9834562789',0,NULL,NULL),
+(24,'mar','444','AUTH','Mary@gmail.com','mary','mary','6987145267',0,NULL,NULL),
+(29,'valiaaaa','3','NTUA','valia@mail.ntua.gr','Euaggelia','Samaara','9876543856',0,NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -194,4 +200,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-28 20:17:59
+-- Dump completed on 2024-01-07 15:58:49

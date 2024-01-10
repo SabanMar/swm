@@ -84,7 +84,7 @@ class HomePage extends StatelessWidget {
                 child: Center(
                   heightFactor: 6,
                   child: Text(
-                    'Start your own Session!',
+                    'Start your own Session',
                     style: TextStyle(
                         color: Colors.green.shade700,
                         fontSize: 25,

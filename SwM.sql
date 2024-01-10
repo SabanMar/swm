@@ -37,8 +37,47 @@ CREATE TABLE `avatar` (
 LOCK TABLES `avatar` WRITE;
 /*!40000 ALTER TABLE `avatar` DISABLE KEYS */;
 INSERT INTO `avatar` VALUES
-(1,10,'Frame 1 (1).png'),
-(2,15,'assets/images/avatars/Frame 1 (2).png');
+(1,10,'assets/images/avatars/Frame 1.png'),
+(2,15,'assets/images/avatars/Frame 1 (1).png'),
+(3,25,'assets/images/avatars/Frame 1 (2).png'),
+(4,30,'assets/images/avatars/Frame 1 (3).png'),
+(5,30,'assets/images/avatars/Frame 1 (4).png'),
+(6,35,'assets/images/avatars/Frame 1 (5).png'),
+(7,40,'assets/images/avatars/Frame 1 (6).png'),
+(8,45,'assets/images/avatars/Frame 1 (7).png'),
+(9,50,'assets/images/avatars/Frame 1 (8).png'),
+(10,55,'assets/images/avatars/Frame 1 (9).png'),
+(11,60,'assets/images/avatars/Frame 1 (10).png'),
+(12,65,'assets/images/avatars/Frame 1 (11).png'),
+(13,70,'assets/images/avatars/Frame 1 (12).png'),
+(14,75,'assets/images/avatars/Frame 1 (13).png'),
+(15,80,'assets/images/avatars/Frame 1 (14).png'),
+(16,85,'assets/images/avatars/Frame 1 (15).png'),
+(17,90,'assets/images/avatars/Frame 1 (16).png'),
+(18,95,'assets/images/avatars/Frame 1 (17).png'),
+(19,100,'assets/images/avatars/Frame 1 (18).png'),
+(20,105,'assets/images/avatars/Frame 1 (19).png'),
+(21,110,'assets/images/avatars/Frame 1 (20).png'),
+(22,115,'assets/images/avatars/Frame 1 (21).png'),
+(23,120,'assets/images/avatars/Frame 1 (22).png'),
+(24,125,'assets/images/avatars/Frame 1 (23).png'),
+(25,130,'assets/images/avatars/Frame 1 (24).png'),
+(26,135,'assets/images/avatars/Frame 1 (25).png'),
+(27,140,'assets/images/avatars/Frame 1 (26).png'),
+(28,145,'assets/images/avatars/Frame 1 (27).png'),
+(29,150,'assets/images/avatars/Frame 1 (28).png'),
+(30,155,'assets/images/avatars/Frame 1 (29).png'),
+(31,160,'assets/images/avatars/Frame 1 (30).png'),
+(32,165,'assets/images/avatars/Frame 1 (31).png'),
+(33,170,'assets/images/avatars/Frame 1 (32).png'),
+(34,175,'assets/images/avatars/Frame 1 (33).png'),
+(35,180,'assets/images/avatars/Frame 1 (34).png'),
+(36,185,'assets/images/avatars/Frame 1 (35).png'),
+(37,190,'assets/images/avatars/Frame 1 (36).png'),
+(38,195,'assets/images/avatars/Frame 1 (37).png'),
+(39,200,'assets/images/avatars/Frame 1 (38).png'),
+(40,205,'assets/images/avatars/Frame 1 (39).png'),
+(41,210,'assets/images/avatars/Frame 1 (40).png');
 /*!40000 ALTER TABLE `avatar` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -141,7 +180,7 @@ CREATE TABLE `users` (
   UNIQUE KEY `unique_username` (`username`),
   UNIQUE KEY `unique_password` (`password`),
   UNIQUE KEY `unique_email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -151,17 +190,18 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-(11,'dimitra','1','NTUA','dgini@ehotmail.com','marianthi','metaxaki','6934567890',0,NULL,NULL),
-(12,'maria','234','NTUA','sabmar@ehotmail.com','maria','sabani','6934567890',0,NULL,NULL),
-(14,'thoubi','333','NTUA','mar@ehotmail.com','marianthi','metaxaki','6988092861',0,NULL,NULL),
-(15,'vivian','111','NTUA','viviaan@ehotmail.com','Vivian','Thanou','6988092863',0,NULL,NULL),
-(16,'valia','678','NTUA','salia@ehotmail.com','Valia','Samara','6988052863',0,NULL,NULL),
-(17,'petros','000','Aristotelio','petrospil@ehotmail.com','Petros','Piliouris','6988052425',0,NULL,NULL),
-(18,'eleni','999','UPEC','elenisabani@ehotmail.com','Helen','Sabani','6983672097',0,'Just a girl who loves nature and hanging out with friends',2),
-(19,'valaki','000000','NTUA','valia@gmail.com','Valia','Samara','3245678',0,NULL,NULL),
-(22,'jo','8989','Harvard','jo@gmail.com','Jo','Goldberg','9834562789',0,NULL,NULL),
-(24,'mar','444','AUTH','Mary@gmail.com','mary','mary','6987145267',0,NULL,NULL),
-(29,'valiaaaa','3','NTUA','valia@mail.ntua.gr','Euaggelia','Samaara','9876543856',0,NULL,NULL);
+(11,'dimitra','1','NTUA','dgini@ehotmail.com','marianthi','metaxaki','6934567890',0,NULL,1),
+(12,'maria','234','NTUA','sabmar@ehotmail.com','maria','sabani','6934567890',0,NULL,1),
+(14,'thoubi','333','NTUA','mar@ehotmail.com','marianthi','metaxaki','6988092861',0,NULL,1),
+(15,'vivian','111','NTUA','viviaan@ehotmail.com','Vivian','Thanou','6988092863',0,NULL,1),
+(16,'valia','678','NTUA','salia@ehotmail.com','Valia','Samara','6988052863',0,NULL,1),
+(17,'petros','000','Aristotelio','petrospil@ehotmail.com','Petros','Piliouris','6988052425',0,NULL,1),
+(18,'eleni','999','UPEC','elenisabani@ehotmail.com','Helen','Sabani','6983672097',75,'Just a girl who loves nature and hanging out with friends',3),
+(19,'valaki','000000','NTUA','valia@gmail.com','Valia','Samara','3245678',0,NULL,1),
+(22,'jo','8989','Harvard','jo@gmail.com','Jo','Goldberg','9834562789',0,NULL,1),
+(24,'mar','444','AUTH','Mary@gmail.com','mary','mary','6987145267',0,NULL,1),
+(29,'valiaaaa','3','NTUA','valia@mail.ntua.gr','Euaggelia','Samaara','9876543856',0,NULL,1),
+(32,'Kostaras','20011008','NTUA','kapoutsinos.psa@gmail.com','Kostas','Psarras','6970638096',0,'I love H3',39);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -188,6 +228,8 @@ CREATE TABLE `users_avatars` (
 
 LOCK TABLES `users_avatars` WRITE;
 /*!40000 ALTER TABLE `users_avatars` DISABLE KEYS */;
+INSERT INTO `users_avatars` VALUES
+(18,1);
 /*!40000 ALTER TABLE `users_avatars` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -200,4 +242,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-07 15:58:49
+-- Dump completed on 2024-01-09 18:36:53

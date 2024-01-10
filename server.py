@@ -145,11 +145,16 @@ def get_user_data():
             user_data = cursor.fetchone()
             
             if user_data:
-                query_avatars = "SELECT a.* FROM avatar a INNER JOIN users_avatars ua ON a.id = ua.avatar_id INNER JOIN users u WHERE u.id = %s"
-                cursor.execute(query_avatars, user_id)
-                avatars_data = cursor.fetchall()
+                #query_avatars = "SELECT a.* FROM avatar a INNER JOIN users_avatars ua ON a.id = ua.avatar_id INNER JOIN users u WHERE u.id = %s"
+                #cursor.execute(query_avatars, user_id)
+                #avatars_data = cursor.fetchall()
+                #print("Fetched Avatars Data:", avatars_data)
+                #if avatars_data:
+                #   user_data['avatars'] = [avatar[0] for avatar in avatars_data]
+                #else:
+                #    user_data['avatars'] = []  # If no avatars found, set an empty list  
                 # Adding avatars data to the user_data dictionary
-                user_data['avatars'] = [avatar[0] for avatar in avatars_data]
+                
                 query_photo_profile = "SELECT a.id FROM avatar a INNER JOIN users u ON a.id = u.avatar WHERE u.id = %s"
                 cursor.execute(query_photo_profile, user_id)
                 photo_profile = cursor.fetchone()
@@ -326,6 +331,62 @@ def get_all_sessions():
             else:
                 return jsonify({"message": "No sessions found."}), 404
 
+    return jsonify({"error": "Method not allowed"}), 405
+
+@app.route("/available_avatars", methods = ['GET'])
+def available_avatars():
+    if request.method == 'GET':
+        conn = pymysql.connect(**config1)
+        query = "SELECT * FROM avatar"
+
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            avatars_data = cursor.fetchall()
+        
+        if avatars_data:
+            return jsonify(avatars_data), 200
+        else:
+            return jsonify({"message": "No avatars found."}), 404
+        
+    return jsonify({"error": "Method not allowed"}), 405
+
+@app.route("/unlock_avatar", methods=['GET'])
+def unlock_avatar():
+    if request.method == 'GET':
+        avatar_id = request.args.get('avatar_id')
+        user_id = request.args.get('user_id')
+
+        conn = pymysql.connect(**config1)
+        query1 = "INSERT INTO users_avatars(user_id, avatar_id) VALUES(%s, %s)"
+        parameters1 = (user_id, avatar_id)
+        query2 = "SELECT * FROM users WHERE id = %s"
+        parameters2 = (user_id,)
+        query3 = "SELECT * FROM avatar WHERE id = %s"
+        parameters3 = (avatar_id,)
+        query4 = "UPDATE users SET coins = %s - %s WHERE id = %s"
+
+        with conn.cursor() as cursor:
+            try:
+                cursor.execute(query2, parameters2)
+                user_coins = cursor.fetchone()['coins']
+                cursor.execute(query3, parameters3)
+                avatar_cost = cursor.fetchone()['cost']
+
+                if user_coins and avatar_cost:
+                    if user_coins >= avatar_cost:
+                        cursor.execute(query1, parameters1)
+                        conn.commit()
+                        cursor.execute(query4, (user_coins, avatar_cost, user_id))
+                        conn.commit()
+                        return jsonify({"message": "You unlocked the avatar!"}), 200
+                    else:
+                        return jsonify({"message": "Not enough coins"}), 400  # Use 400 status code for insufficient coins
+                else:
+                    return jsonify({"message": "Invalid user or avatar"}), 404  # Return 404 for other resource-related issues
+
+            except Exception as e:
+                print(f"Error occurred: {str(e)}")
+                return jsonify({"message": "Internal Server Error"}), 500
     return jsonify({"error": "Method not allowed"}), 405
 
 

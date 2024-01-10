@@ -387,6 +387,7 @@ def unlock_avatar():
             except Exception as e:
                 print(f"Error occurred: {str(e)}")
                 return jsonify({"message": "Internal Server Error"}), 500
+                
     return jsonify({"error": "Method not allowed"}), 405
 
 

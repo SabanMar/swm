@@ -145,7 +145,7 @@ class _ProfileState extends State<Profile> {
                                     );
                                   },
                                 ),
-                                SizedBox(width: 160),
+                                SizedBox(width: 150),
                                 Image.asset(
                                   'assets/images/coin.png',
                                   width: 22,
@@ -154,11 +154,11 @@ class _ProfileState extends State<Profile> {
                                 SizedBox(width: 5),
                                 Text('${userData['coins']}',
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: 20,
                                       color: Colors.yellow,
                                       fontWeight: FontWeight.bold,
                                     )),
-                                SizedBox(height: 20),
+                                SizedBox(height: 15),
                               ],
                             ),
                           ),
@@ -196,7 +196,8 @@ class _ProfileState extends State<Profile> {
                           SizedBox(height: 10),
                           Padding(
                             padding: const EdgeInsets.all(10.0),
-                            child: Text(
+                            child: Text( userData['bio'] == null 
+                              ? '':
                               '${userData['bio']}',
                               style:
                                   TextStyle(fontSize: 12, color: Colors.black),

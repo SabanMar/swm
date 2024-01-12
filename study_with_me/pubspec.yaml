@@ -20,7 +20,8 @@ dependencies:
   url_launcher: ^6.0.6
   intl: ^0.19.0
   permission_handler: ^11.1.0
-  file_picker: ^4.0.0
+  file_picker: ^6.1.1
+  path_provider: ^2.1.2
 
 
 dev_dependencies:

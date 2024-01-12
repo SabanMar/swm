@@ -65,6 +65,8 @@ class _StartSessionState extends State<StartSession> {
       DateTime endTime,
       String maxMembers) async {
     int? hostId = UserManager.loggedInUserId; // Get host ID from UserManager
+        // Use Google Geocoding API to get coordinates for the location
+
 
     final Uri uri = Uri.parse('${config.localhost}/create_session');
 
@@ -113,6 +115,21 @@ class _StartSessionState extends State<StartSession> {
     }
   }
 
+  // List of preset subjects
+  final List<String> subjects = [
+    'Mathematics',
+    'Chemistry',
+    'History',
+    'Literature',
+    'Programming',
+    'Physics',
+    'Biology',
+    'Electonics',
+    // Add more subjects as needed
+  ];
+
+  String? selectedSubject; // Variable to store the selected subject
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,65 +140,77 @@ class _StartSessionState extends State<StartSession> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                    controller: subjectController,
-                    decoration: const InputDecoration(
-                      labelText: 'Subject',
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: selectedSubject,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedSubject = newValue;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Subject',
+                    border: OutlineInputBorder(),
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
-                    ),
+                  items: subjects.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: locationController,
+                  decoration: const InputDecoration(
+                    labelText: 'Location',
                   ),
-                  TextFormField(
-                    controller: maxMembersController,
-                    decoration: const InputDecoration(
-                      labelText: 'Members(1-5)',
-                    ),
+                ),
+                TextFormField(
+                  controller: maxMembersController,
+                  decoration: const InputDecoration(
+                    labelText: 'Members(1-5)',
                   ),
-                  const SizedBox(height: 16),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _selectDateTime(true); // Open start date time picker
-                        },
-                        child: Text(
-                          selectedStartTime != null
-                              ? 'Start Time: ${selectedStartTime!.toLocal()}'
-                              : 'Select Start Time',
-                        ),
+                ),
+                const SizedBox(height: 16),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectDateTime(true); // Open start date time picker
+                      },
+                      child: Text(
+                        selectedStartTime != null
+                            ? 'Start Time: ${selectedStartTime!.toLocal()}'
+                            : 'Select Start Time',
                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _selectDateTime(false); // Open end date time picker
-                        },
-                        child: Text(
-                          selectedEndTime != null
-                              ? 'End Time: ${selectedEndTime!.toLocal()}'
-                              : 'Select End Time',
-                        ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectDateTime(false); // Open end date time picker
+                      },
+                      child: Text(
+                        selectedEndTime != null
+                            ? 'End Time: ${selectedEndTime!.toLocal()}'
+                            : 'Select End Time',
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
+          ),
           Positioned(
             bottom: 75,
             right: 75,
             child: ElevatedButton(
               onPressed: () {
-                if (selectedStartTime != null && selectedEndTime != null) {
-                  String subject = subjectController.text;
+                if (selectedStartTime != null && selectedEndTime != null && selectedSubject != null) {
+                  String subject = selectedSubject ?? '';
                   String location = locationController.text;
                   String maxMembers = maxMembersController.text;
 

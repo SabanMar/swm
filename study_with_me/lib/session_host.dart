@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/files_page.dart';
+import 'package:study_with_me/usermanager.dart';
+import 'package:path/path.dart';
 
 class SessionHost extends StatefulWidget {
   final int sessionID;
@@ -55,25 +59,30 @@ class _SessionHostState extends State<SessionHost> {
     }
   }
 
-  Future<void> uploadFile(String filePath) async {
+  Future<void> uploadFile(int sessionID, int userID, File file) async {
     try {
-      final url = Uri.parse('${config.localhost}/upload_file?session_id=${widget.sessionID}');
+      var request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              '${config.localhost}/upload_file?session_id=$sessionID&user_id=$userID'));
 
-      var request = http.MultipartRequest('POST', url);
-      request.fields['file_path'] = filePath;
+      // Add the file to the request
+      var stream = http.ByteStream(file.openRead());
+      var length = await file.length();
+      var multipartFile = http.MultipartFile('file', stream, length,
+          filename: basename(file.path));
+      request.files.add(multipartFile);
 
-      var file = await http.MultipartFile.fromPath('file', filePath);
-      request.files.add(file);
-
+      // Send the request
       var response = await request.send();
 
       if (response.statusCode == 200) {
         print('File uploaded successfully');
       } else {
-        print('File upload failed with status: ${response.statusCode}');
+        print('Failed to upload file. Status code: ${response.statusCode}');
       }
-    } catch (error) {
-      print('Error uploading file: $error');
+    } catch (e) {
+      print('Error during file upload: $e');
     }
   }
 
@@ -121,7 +130,7 @@ class _SessionHostState extends State<SessionHost> {
             ),
             SizedBox(height: 15),
             Container(
-              width: 70,
+              width: 100,
               height: 25,
               decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
@@ -146,25 +155,35 @@ class _SessionHostState extends State<SessionHost> {
                 ElevatedButton(
                   onPressed: () async {
                     FilePickerResult? result =
-                        await FilePicker.platform.pickFiles();
-
+                        await FilePicker.platform.pickFiles(type: FileType.any);
                     if (result != null) {
                       // Handle the selected file
-                      PlatformFile file = result.files.first;
-                      print('File path: ${file.path}');
-                      print('File name: ${file.name}');
+                      File file = File(result.files.single.path!);
                       // Upload file to the server
                       try {
-                        await uploadFile(file.path!);
+                        await uploadFile(widget.sessionID,
+                            UserManager.loggedInUserId as int, file);
                       } catch (error) {
                         print('Error uploading file: $error');
                       }
-
                     }
                   },
                   child: const Text('Upload'),
                 ),
                 SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    // Call the function to navigate to SessionFilesScreen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            SessionFilesScreen(sessionID: widget.sessionID),
+                      ),
+                    );
+                  },
+                  child: Text('Files'),
+                ),
                 ElevatedButton(
                   onPressed: () {
                     togglePause();

@@ -100,6 +100,22 @@ class _JoinSessionState extends State<JoinSession> {
     }
   }
 
+  // List of preset subjects
+  final List<String> subjects = [
+    'Mathematics',
+    'Chemistry',
+    'History',
+    'Literature',
+    'Programming',
+    'Physics',
+    'Biology',
+    'Electonics',
+    'Everything'
+    // Add more subjects as needed
+  ];
+
+  String? selectedSubject = 'Everything';// Variable to store the selected subject
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,11 +129,23 @@ class _JoinSessionState extends State<JoinSession> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextFormField(
-                  controller: subjectController,
-                  decoration: const InputDecoration(
+                DropdownButtonFormField<String>(
+                  value: selectedSubject,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedSubject = newValue;
+                    });
+                  },
+                  decoration: InputDecoration(
                     labelText: 'Subject',
+                    border: OutlineInputBorder(),
                   ),
+                  items: subjects.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -160,7 +188,7 @@ class _JoinSessionState extends State<JoinSession> {
             right: 75,
             child: ElevatedButton(
               onPressed: () {
-                print('Subject: ${subjectController.text}');
+                print('Subject: ${selectedSubject.toString()}');
                 print('Location: ${locationController.text}');
                 print('Start Time: $selectedStartTime');
                 print('End Time: $selectedEndTime');
@@ -169,7 +197,7 @@ class _JoinSessionState extends State<JoinSession> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => AllSessionsTest(
-                      subject: subjectController.text,
+                      subject: selectedSubject.toString(),
                       location: locationController.text,
                       startTime: selectedStartTime,
                       endTime: selectedEndTime,

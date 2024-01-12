@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:study_with_me/session_host.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
@@ -73,26 +74,26 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
 
   bool canMakeCalls = false; // Flag to determine if calls are allowed
 
-Future<void> _checkPermissions() async {
-  var status = await Permission.phone.status;
-  if (!status.isGranted) {
-    status = await Permission.phone.request();
-    if (status.isGranted) {
+  Future<void> _checkPermissions() async {
+    var status = await Permission.phone.status;
+    if (!status.isGranted) {
+      status = await Permission.phone.request();
+      if (status.isGranted) {
+        setState(() {
+          canMakeCalls = true;
+        });
+      } else {
+        // Handle denied permissions here
+        setState(() {
+          canMakeCalls = false;
+        });
+      }
+    } else {
       setState(() {
         canMakeCalls = true;
       });
-    } else {
-      // Handle denied permissions here
-      setState(() {
-        canMakeCalls = false;
-      });
     }
-  } else {
-    setState(() {
-      canMakeCalls = true;
-    });
   }
-}
 
   void _makeCall(String phoneNumber) async {
     if (canMakeCalls) {
@@ -257,7 +258,17 @@ Future<void> _checkPermissions() async {
                     height: 10,
                   ),
                   ElevatedButton(
-                    onPressed: null,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SessionHost(
+                            sessionID: widget.sessionID,
+                            sessionData: sessionData, 
+                          ),
+                        ),
+                      );
+                    },
                     child: Text(
                       "Start",
                       style: TextStyle(color: Colors.black),

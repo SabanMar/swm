@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/session_member.dart';
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
 import 'package:study_with_me/config.dart';
@@ -104,26 +105,26 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
 
   bool canMakeCalls = false; // Flag to determine if calls are allowed
 
-Future<void> _checkPermissions() async {
-  var status = await Permission.phone.status;
-  if (!status.isGranted) {
-    status = await Permission.phone.request();
-    if (status.isGranted) {
+  Future<void> _checkPermissions() async {
+    var status = await Permission.phone.status;
+    if (!status.isGranted) {
+      status = await Permission.phone.request();
+      if (status.isGranted) {
+        setState(() {
+          canMakeCalls = true;
+        });
+      } else {
+        // Handle denied permissions here
+        setState(() {
+          canMakeCalls = false;
+        });
+      }
+    } else {
       setState(() {
         canMakeCalls = true;
       });
-    } else {
-      // Handle denied permissions here
-      setState(() {
-        canMakeCalls = false;
-      });
     }
-  } else {
-    setState(() {
-      canMakeCalls = true;
-    });
   }
-}
 
   void _makeCall(String phoneNumber) async {
     await _checkPermissions();
@@ -288,16 +289,44 @@ Future<void> _checkPermissions() async {
                   SizedBox(
                     height: 10,
                   ),
-                  ElevatedButton(
-                    onPressed: () => joinSession(widget.sessionID.toString(),
-                        UserManager.loggedInUserId.toString()),
-                    child: Text(
-                      "Join",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(Colors.white),
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => joinSession(
+                            widget.sessionID.toString(),
+                            UserManager.loggedInUserId.toString()),
+                        child: Text(
+                          "Join",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.white),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SessionMember(
+                                sessionID: widget.sessionID,
+                                sessionData: sessionData,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Go to session!',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStatePropertyAll(Colors.white),
+                        ),
+                      )
+                    ],
                   ),
                 ],
               ),

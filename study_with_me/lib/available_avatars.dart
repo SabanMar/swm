@@ -12,7 +12,7 @@ class AvailableAvatars extends StatefulWidget {
 }
 
 class _AvailableAvatarsState extends State<AvailableAvatars> {
-  List<dynamic> avatars = [];
+  List<Map<String, dynamic>> avatars = [];
   dynamic unlock_avatar = [];
 
   @override
@@ -32,8 +32,16 @@ class _AvailableAvatarsState extends State<AvailableAvatars> {
       );
 
       if (response.statusCode == 200) {
+        final List<Map<String, dynamic>> updatedAvatars =
+            (jsonDecode(response.body) as List<dynamic>).map((dynamic avatar) {
+          return <String, dynamic>{
+            ...avatar,
+            'isUnlocked': false
+          }; // Add 'isUnlocked' property
+        }).toList();
+
         setState(() {
-          avatars = jsonDecode(response.body);
+          avatars = updatedAvatars;
         });
       } else {
         throw Exception('Failed to fetch data');
@@ -43,7 +51,7 @@ class _AvailableAvatarsState extends State<AvailableAvatars> {
     }
   }
 
-  Future<void> unlockAvatar({required int avatarId}) async {
+  Future<void> unlockAvatar({required int avatarId, required int index}) async {
     final url = Uri.parse(
         '${config.localhost}/unlock_avatar?avatar_id=$avatarId&user_id=${UserManager.loggedInUserId}');
 
@@ -58,6 +66,7 @@ class _AvailableAvatarsState extends State<AvailableAvatars> {
       if (response.statusCode == 200) {
         setState(() {
           unlock_avatar = jsonDecode(response.body);
+          avatars[index]['isUnlocked'] = true;
         });
       } else if (response.statusCode == 400) {
         final errorMessage = jsonDecode(response.body)['message'];
@@ -67,7 +76,7 @@ class _AvailableAvatarsState extends State<AvailableAvatars> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: Text('Error'),
+              title: const Text('Error'),
               content: Text(errorMessage ?? 'Not enough coins'),
               actions: <Widget>[
                 TextButton(
@@ -80,7 +89,28 @@ class _AvailableAvatarsState extends State<AvailableAvatars> {
             );
           },
         );
-      } else {
+      }
+      else if (response.statusCode == 202) {
+        final errorMessage = jsonDecode(response.body)['message'];
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: Text(errorMessage ?? 'You have already unlocked this avatar'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }  
+       else {
         throw Exception('Failed to unlock data');
       }
     } catch (e) {
@@ -143,11 +173,14 @@ class _AvailableAvatarsState extends State<AvailableAvatars> {
                             ),
                             SizedBox(width: 20),
                             ElevatedButton(
-                                onPressed: () {
-                                  int avatarID =
-                                      avatar['id']; // Get the avatar ID
-                                  unlockAvatar(avatarId: avatarID);
-                                },
+                                onPressed: avatar['isUnlocked']
+                                    ? null
+                                    : () {
+                                        int avatarID =
+                                            avatar['id']; // Get the avatar ID
+                                        unlockAvatar(
+                                            avatarId: avatarID, index: index);
+                                      },
                                 child: const Text('GET'))
                           ],
                         ),

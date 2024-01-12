@@ -1,9 +1,11 @@
-from flask import Flask, request, jsonify, json, session
+from flask import Flask, request, jsonify, json, send_from_directory, session
 import pymysql
 import secrets
 #from flask_socketio import SocketIO
 from datetime import datetime
-from flask_cors import CORS
+import os
+from werkzeug.utils import secure_filename
+
 
 # Details about base
 config1 = {
@@ -36,7 +38,6 @@ app = Flask(__name__)
 # we use keys in order to store the user's data in sessions.
 app.secret_key = secrets.token_hex(24)
 #socketio = SocketIO(app)
-CORS(app)
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -46,7 +47,7 @@ def login():
         username = data.get('username')
         password = data.get('password')
 
-        conn = pymysql.connect(**config2) # connection with the database
+        conn = pymysql.connect(**config1) # connection with the database
 
         with conn.cursor() as cursor:
             query = "SELECT * FROM users WHERE username = %s AND password = %s"
@@ -74,7 +75,7 @@ def signup():
     last_name = data.get('last_name')
     phone = data.get('phone')
     
-    conn = pymysql.connect(**config2) 
+    conn = pymysql.connect(**config1) 
 
     with conn.cursor() as cursor:
         query = "INSERT INTO users(username,password,university,email,first_name,last_name,phone) VALUES(%s,%s,%s,%s,%s,%s,%s)"
@@ -109,7 +110,7 @@ def create_session():
             print(host_id, subject, location, start_time, end_time)
             return jsonify({"error": "Incomplete data"}), 400  # Bad Request
 
-        conn = pymysql.connect(**config2)
+        conn = pymysql.connect(**config1)
 
         with conn.cursor() as cursor:
             query = "INSERT INTO sessions(host_id, subject, location, start_time, end_time, max_members) VALUES (%s, %s, %s, %s, %s, %s)"
@@ -129,7 +130,7 @@ def get_session_data():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config2)
+        conn = pymysql.connect(**config1)
         
         with conn.cursor() as cursor:
             query_session_data = "SELECT * FROM sessions WHERE id = %s"
@@ -147,7 +148,7 @@ def get_user_data():
     if request.method == 'GET':
         user_id = request.args.get('user_id')
         
-        conn = pymysql.connect(**config2)
+        conn = pymysql.connect(**config1)
         
         with conn.cursor() as cursor:
             query_user_data = "SELECT username, university, first_name, last_name, email, phone, coins, bio FROM users WHERE id = %s"
@@ -199,7 +200,7 @@ def get_session_details():
     if request.method == 'GET':
         session_id = request.args.get('session_id')
         
-        conn = pymysql.connect(**config2)
+        conn = pymysql.connect(**config1)
         
         with conn.cursor() as cursor:
             query_session_data = """SELECT 
@@ -270,18 +271,20 @@ def join_session():
         session_id = data.get('session_id')
         member_id = data.get('member_id')  # Assuming the ID of the user joining
 
-        conn = pymysql.connect(**config2)
+        conn = pymysql.connect(**config1)
 
         with conn.cursor() as cursor:
             # Get session details and count current members
-            query_count_members = "SELECT member1_id, member2_id, member3_id, member4_id, max_members, current_members FROM sessions WHERE id = %s"
+            query_count_members = "SELECT * FROM sessions WHERE id = %s"
             cursor.execute(query_count_members, session_id)
             session_details = cursor.fetchone()
 
             members = [session_details[f'member{i}_id'] for i in range(1, 5)]
-            if member_id in members:
+            if member_id == session_details['host_id']:
+                return jsonify({"message": "You are the host of this session", "session_id": session_id}), 204
+            elif member_id in members:
                 return jsonify({"message": "User is already a member of this session", "session_id": session_id}), 203
-            if session_details['max_members'] > session_details['current_members']:
+            elif session_details['max_members'] > session_details['current_members']:
                 current_members = session_details['current_members']
                 if None in members:
                     # Find first available slot and add the user
@@ -308,7 +311,7 @@ def get_all_sessions():
         start_time_str = data.get('start_time')
         end_time_str = data.get('end_time')
 
-        conn = pymysql.connect(**config2)
+        conn = pymysql.connect(**config1)
         query_session_data = "SELECT * FROM sessions WHERE 1=1"
         parameters = []
 
@@ -324,8 +327,8 @@ def get_all_sessions():
         if start_time_str:
             start_time = datetime.strptime(start_time_str, "%Y-%m-%dT%H:%M:%S.%f")
             if start_time >= current_time:
-                query_session_data += " AND start_time = %s"
-                parameters.append(start_time)
+                query_session_data += " AND start_time = %s AND start_time >= %s"
+                parameters.append(start_time, current_time)
         if end_time_str:
             end_time = datetime.strptime(end_time_str, "%Y-%m-%dT%H:%M:%S.%f")
             if end_time >= current_time:
@@ -367,6 +370,7 @@ def unlock_avatar():
         user_id = request.args.get('user_id')
 
         conn = pymysql.connect(**config1)
+        # Define the quereis that will be executed later
         query1 = "INSERT INTO users_avatars(user_id, avatar_id) VALUES(%s, %s)"
         parameters1 = (user_id, avatar_id)
         query2 = "SELECT * FROM users WHERE id = %s"
@@ -378,11 +382,21 @@ def unlock_avatar():
         with conn.cursor() as cursor:
             try:
                 cursor.execute(query2, parameters2)
-                user_coins = cursor.fetchone()['coins']
+                user= cursor.fetchone()
+                user_coins = user['coins']
                 cursor.execute(query3, parameters3)
-                avatar_cost = cursor.fetchone()['cost']
+                avatar= cursor.fetchone()
+                avatar_cost = avatar['cost']
 
-                if user_coins and avatar_cost:
+                if user and avatar:
+                    query5 = "SELECT * FROM users_avatars WHERE user_id = %s AND avatar_id = %s"
+                    parameters5 = (user['id'],avatar['id'])
+                    cursor.execute(query5, parameters5)
+                    check = cursor.fetchone() # I check if the user have already unlocked the avatar 
+
+                    if check:
+                        return jsonify({"message": "You have already unlocked the avatar"}), 202
+                    
                     if user_coins >= avatar_cost:
                         cursor.execute(query1, parameters1)
                         conn.commit()
@@ -400,6 +414,57 @@ def unlock_avatar():
                 
     return jsonify({"error": "Method not allowed"}), 405
 
+# Create a text file for testing
+test_file_path = '/Users/mariasabani/Desktop/file.txt'
+
+with open(test_file_path, 'w') as test_file:
+    test_file.write('This is a test file for upload.')
+
+
+SHARED_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+app.config['UPLOAD_FOLDER'] = SHARED_FOLDER
+
+@app.route('/upload_file', methods = ['POST'])
+def upload_file():
+    if request.method == 'POST':
+        session_id = request.args.get('session_id')
+        file_path = request.form.get('file_path')  # Receive the file path as a parameter
+
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'})
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'})
+        
+        if file:
+            try:
+                filename = secure_filename(file.filename)
+
+                conn = pymysql.connect(**config1)
+
+                with conn.cursor() as cursor:
+                    query = "INSERT INTO session_files(session_id, file_name, file_path) VALUES (%s, %s, %s)"
+                    cursor.execute(query, (session_id, filename, file_path))
+                    conn.commit()
+
+                print(f"Session ID: {session_id}")
+                print(f"Filename: {filename}")
+                print(f"File path: {file_path}") 
+                
+                return jsonify({'File uploaded successfully'}), 200
+
+            except Exception as e:
+                print(f"Error during database insertion: {e}")
+                return jsonify({'error': 'Failed to upload file'}), 404
+            
+    return jsonify({'error': 'Method not allowed'}), 405
+
+# For opening files
+@app.route('/get_file/<file_name>', methods=['GET'])
+def get_file(file_name):
+    # Provide a route to access files based on file name
+    return send_from_directory(app.config['UPLOAD_FOLDER'], file_name)
 
 if __name__ == "__main__":
     app.run(debug=True)

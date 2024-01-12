@@ -3,9 +3,8 @@ import pymysql
 import secrets
 #from flask_socketio import SocketIO
 from datetime import datetime
-import os
 from werkzeug.utils import secure_filename
-
+import os, base64
 
 # Details about base
 config1 = {
@@ -301,6 +300,57 @@ def join_session():
 
     return jsonify({"error": "Method not allowed"}), 405
 
+@app.route("/leave_session", methods=['POST'])
+def leave_session():
+    if request.method == 'POST':
+        data = request.get_json()
+        session_id = data.get('session_id')
+        user_id = data.get('user_id')   
+
+        conn = pymysql.connect(**config1)
+
+        with conn.cursor() as cursor:
+            # Get session details and member columns
+            query_session_details = "SELECT * FROM sessions WHERE id = %s"
+            cursor.execute(query_session_details, session_id)
+            session_details = cursor.fetchone()
+
+            if session_details:
+                if session_details["member1_id"] == user_id:
+                    leave_query = "UPDATE sessions SET member1_id = NULL WHERE id = %s"
+                    cursor.execute(leave_query, (session_id,))
+                    result = cursor.fetchone()
+                    conn.commit()
+                    return jsonify({"message": "User successfully removed from the session"}), 200
+                
+                if session_details["member2_id"] == user_id:
+                    leave_query = "UPDATE sessions SET member2_id = NULL WHERE id = %s"
+                    cursor.execute(leave_query, (session_id,))
+                    result = cursor.fetchone()
+                    conn.commit()
+                    return jsonify({"message": "User successfully removed from the session"}), 200
+                
+                if session_details["member3_id"] == user_id:
+                    leave_query = "UPDATE sessions SET member3_id = NULL WHERE id = %s"
+                    cursor.execute(leave_query, (session_id,))
+                    result = cursor.fetchone()
+                    conn.commit()
+                    return jsonify({"message": "User successfully removed from the session"}), 200
+                
+                if session_details["member4_id"] == user_id:
+                    leave_query = "UPDATE sessions SET member4_id = NULL WHERE id = %s"
+                    cursor.execute(leave_query, (session_id,))
+                    result = cursor.fetchone()
+                    print(result)
+                    conn.commit()
+                    return jsonify({"message": "User successfully removed from the session"}), 200
+                
+                return jsonify({"message": "User not in session"}), 201
+
+            return jsonify({"error": "Session not found"}), 404
+
+    return jsonify({"error": "Method not allowed"}), 405
+
 
 @app.route("/get_all_sessions", methods=['POST'])
 def get_all_sessions():
@@ -315,7 +365,7 @@ def get_all_sessions():
         query_session_data = "SELECT * FROM sessions WHERE 1=1"
         parameters = []
 
-        if subject:
+        if subject != 'Everything':
             query_session_data += " AND subject = %s"
             parameters.append(subject)
         if location:
@@ -414,57 +464,88 @@ def unlock_avatar():
                 
     return jsonify({"error": "Method not allowed"}), 405
 
-# Create a text file for testing
-test_file_path = '/Users/mariasabani/Desktop/file.txt'
 
-with open(test_file_path, 'w') as test_file:
-    test_file.write('This is a test file for upload.')
-
-
-SHARED_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
-app.config['UPLOAD_FOLDER'] = SHARED_FOLDER
-
-@app.route('/upload_file', methods = ['POST'])
+@app.route('/upload_file', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
-        session_id = request.args.get('session_id')
-        file_path = request.form.get('file_path')  # Receive the file path as a parameter
+        session_id = int(request.args.get('session_id'))
+        user_id = int(request.args.get('user_id'))
 
         if 'file' not in request.files:
-            return jsonify({'error': 'No file part'})
+            return jsonify({'error': 'No file part'}), 400
         file = request.files['file']
 
         if file.filename == '':
-            return jsonify({'error': 'No selected file'})
-        
+            return jsonify({'error': 'No selected file'}), 400
+
         if file:
             try:
-                filename = secure_filename(file.filename)
-
                 conn = pymysql.connect(**config1)
 
+                # Get the count of files for the session
                 with conn.cursor() as cursor:
-                    query = "INSERT INTO session_files(session_id, file_name, file_path) VALUES (%s, %s, %s)"
-                    cursor.execute(query, (session_id, filename, file_path))
+                    query = "SELECT COUNT(*) FROM session_files WHERE session_id = %s"
+                    cursor.execute(query, (session_id,))
+                    result = cursor.fetchone()
+                    file_count = result['COUNT(*)']
+
+                # Generate the file name
+                filename = f"file_{session_id}_{user_id}_{file_count + 1}"
+
+                # Save the file to the 'files' folder
+                file_path = os.path.join('files', filename)
+                file.save(file_path)
+
+                # Update the database with the file information
+                with conn.cursor() as cursor:
+                    query = "INSERT INTO session_files(session_id, file_name) VALUES (%s, %s)"
+                    cursor.execute(query, (session_id, filename))
                     conn.commit()
 
                 print(f"Session ID: {session_id}")
+                print(f"User ID: {user_id}")
                 print(f"Filename: {filename}")
-                print(f"File path: {file_path}") 
-                
-                return jsonify({'File uploaded successfully'}), 200
+
+                return jsonify({'message': 'File uploaded successfully'}), 200
 
             except Exception as e:
-                print(f"Error during database insertion: {e}")
-                return jsonify({'error': 'Failed to upload file'}), 404
+                print('Error during file upload:', e)
+                return jsonify({'error': f'Failed to upload file. {str(e)}'}), 500
             
     return jsonify({'error': 'Method not allowed'}), 405
 
-# For opening files
-@app.route('/get_file/<file_name>', methods=['GET'])
-def get_file(file_name):
-    # Provide a route to access files based on file name
-    return send_from_directory(app.config['UPLOAD_FOLDER'], file_name)
+@app.route('/get_files/<session_id>', methods=['GET'])
+def get_files(session_id):
+    try:
+        conn = pymysql.connect(**config1)
+        with conn.cursor() as cursor:
+            # Retrieve file information for the given session
+            query = "SELECT file_name FROM session_files WHERE session_id = %s"
+            cursor.execute(query, (session_id,))
+            files = cursor.fetchall()
+
+        if not files:
+            return jsonify({'error': 'No files found for the given session'}), 204
+
+        # Create a list of dictionaries with file names and base64 encoded file contents
+        file_data = []
+        for file in files:
+            file_name = file['file_name']
+            file_path = os.path.join('files', file_name)
+
+            # Read the file content and encode it in base64
+            with open(file_path, 'rb') as f:
+                file_content = base64.b64encode(f.read()).decode('utf-8')
+
+            file_data.append({'file_name': file_name, 'file_content': file_content})
+
+        return jsonify({'files': file_data}), 200
+
+    except Exception as e:
+        print(f"Error retrieving files: {e}")
+        return jsonify({'error': 'Failed to retrieve files'}), 500
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

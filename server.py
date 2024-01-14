@@ -1,10 +1,12 @@
-from flask import Flask, request, jsonify, json, send_from_directory, session
+import io
+from flask import Flask, request, jsonify, json, send_file, send_from_directory, session
 import pymysql
 import secrets
 #from flask_socketio import SocketIO
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import os, base64
+from flask_cors import CORS
 
 # Details about base
 config1 = {
@@ -37,6 +39,7 @@ app = Flask(__name__)
 # we use keys in order to store the user's data in sessions.
 app.secret_key = secrets.token_hex(24)
 #socketio = SocketIO(app)
+CORS(app)
 
 @app.route("/login", methods=['POST'])
 def login():
@@ -493,7 +496,7 @@ def upload_file():
                 filename = f"file_{session_id}_{user_id}_{file_count + 1}"
 
                 # Save the file to the 'files' folder
-                file_path = os.path.join('files', filename)
+                file_path = os.path.join('study_with_me/files', filename)
                 file.save(file_path)
 
                 # Update the database with the file information
@@ -514,6 +517,63 @@ def upload_file():
             
     return jsonify({'error': 'Method not allowed'}), 405
 
+@app.route('/upload_image', methods = ['POST'])
+def upload_image():
+    session_id = int(request.args.get('session_id'))
+    print(request.data)
+
+    if 'image' in request.files:
+        file = request.files['image']
+        photo_data = file.read()
+
+        try:
+
+            conn = pymysql.connect(**config1)
+            with conn.cursor() as curson:
+                query = "INSERT INTO session_images(session_id,photo) VALUES (%s, %s)"
+                curson.execute(query,(session_id, photo_data))
+            conn.commit()
+
+            return jsonify({'message': 'Image uploaded successfully'}), 200
+
+        except Exception as e:
+            print('Error during image upload:', e)
+            return jsonify({'error': f'Failed to upload image. {str(e)}'}), 500
+
+    return jsonify({'error': 'No image provided in the request'}), 400
+
+@app.route('/get_image', methods=['GET'])
+def get_image():
+    session_id = int(request.args.get('session_id'))
+    
+    try: 
+        conn = pymysql.connect(**config1)
+        with conn.cursor() as cursor:
+            query = "SELECT photo from session_images WHERE session_id = %s"
+            cursor.execute(query,(session_id,))
+            photos = cursor.fetchall()
+
+        if not photos:
+            return jsonify({'error': 'No photos found for the specified session'}), 404
+        
+        # Create a byte buffer to hold all photo data
+        photo_buffer = bytearray()
+        for photo in photos:
+            photo_buffer.extend(photo['photo'])
+
+        # Send the byte buffer as a response
+            return send_file(
+                io.BytesIO(photo_buffer),
+                mimetype='image/jpeg',
+                as_attachment=True,
+                download_name=f'session_{session_id}.jpg'
+            )
+    
+    except Exception as e:
+        print(f"Error retrieving photos: {e}")
+        return jsonify({'error': 'Failed to retrieve photos'}), 500
+
+
 @app.route('/get_files/<session_id>', methods=['GET'])
 def get_files(session_id):
     try:
@@ -531,7 +591,7 @@ def get_files(session_id):
         file_data = []
         for file in files:
             file_name = file['file_name']
-            file_path = os.path.join('files', file_name)
+            file_path = os.path.join('study_with_me/files', file_name)
 
             # Read the file content and encode it in base64
             with open(file_path, 'rb') as f:

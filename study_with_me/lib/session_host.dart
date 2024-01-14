@@ -182,8 +182,9 @@ class _SessionHostState extends State<SessionHost> {
                       ),
                     );
                   },
-                  child: Text('Files'),
+                  child: const Text('Files'),
                 ),
+                SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
                     togglePause();

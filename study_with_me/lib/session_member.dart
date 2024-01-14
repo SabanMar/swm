@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_with_me/files_page.dart';
@@ -24,6 +27,7 @@ class SessionMember extends StatefulWidget {
 class _SessionMemberState extends State<SessionMember> {
   late Timer _timer;
   int _elapsedSeconds = 0;
+  List<File> selectedImages = [];
 
   @override
   void initState() {
@@ -49,27 +53,140 @@ class _SessionMemberState extends State<SessionMember> {
   }
 
   Future<void> uploadFile(int sessionID, int userID, File file) async {
-  try {
-    var request = http.MultipartRequest('POST', Uri.parse('${config.localhost}//upload_file?session_id=$sessionID&user_id=$userID'));
-    
-    // Add the file to the request
-    var stream = http.ByteStream(file.openRead());
-    var length = await file.length();
-    var multipartFile = http.MultipartFile('file', stream, length, filename: basename(file.path));
-    request.files.add(multipartFile);
+    try {
+      var request = http.MultipartRequest(
+          'POST',
+          Uri.parse(
+              '${config.localhost}/upload_file?session_id=$sessionID&user_id=$userID'));
 
-    // Send the request
-    var response = await request.send();
+      // Add the file to the request
+      var stream = http.ByteStream(file.openRead());
+      var length = await file.length();
+      var multipartFile = http.MultipartFile('file', stream, length,
+          filename: basename(file.path));
+      request.files.add(multipartFile);
 
-    if (response.statusCode == 200) {
-      print('File uploaded successfully');
-    } else {
-      print('Failed to upload file. Status code: ${response.statusCode}');
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print('File uploaded successfully');
+      } else {
+        print('Failed to upload file. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error during file upload: $e');
     }
-  } catch (e) {
-    print('Error during file upload: $e');
   }
-}
+
+  Future<void> uploadImage(int sessionID, File image) async {
+    try {
+      var request = http.MultipartRequest('POST',
+          Uri.parse('${config.localhost}/upload_image?session_id=$sessionID'));
+
+      // Attach the image file to the request
+      var fileStream = http.ByteStream(image.openRead());
+      var fileLength = await image.length();
+      var multipartFile = http.MultipartFile('image', fileStream, fileLength,
+          filename: 'image.jpg');
+      request.files.add(multipartFile);
+
+      request.headers['Content-Type'] = 'multipart/form-data';
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print('Image uploaded successfully');
+      } else {
+        print('Failed to upload Image. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error during file/image upload: $e');
+    }
+  }
+
+  File? image;
+
+  Future<File?> pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) {
+        print('No image picked');
+        return null;
+      }
+
+      final imageTemp = File(image.path);
+      setState(() => this.image = imageTemp);
+
+      print('Image picked successfully: ${image.path}');
+      return imageTemp;
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
+      return null;
+    }
+  }
+
+  Future<File?> takeImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.camera);
+      if (image == null) {
+        print('No image picked');
+        return null;
+      }
+      final imageTemp = File(image.path);
+      setState(() => this.image = imageTemp);
+    } on PlatformException catch (e) {
+      print('Failed to pick image: $e');
+    }
+    return null;
+  }
+
+  Future<void> getImages(int sessionID) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${config.localhost}/get_image?session_id=$sessionID'),
+      );
+
+      if (response.statusCode == 200) {
+        List<int> photoData = response.bodyBytes;
+        displayImages(photoData);
+      } else {
+        print('Failed to get images. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error during image retrieval: $e');
+    }
+  }
+
+  void displayImages(List<int> photoData) {
+    List<Widget> imageWidgets = [];
+    for(int i=0; i < photoData.length; i++) {
+      imageWidgets.add(Image.memory(Uint8List.fromList(photoData[i] as List<int>)));
+    }
+  }
+
+  List<String> parseImagesFromResponse(String responseBody) {
+    try {
+      // Assuming the response is in JSON format
+      final List<dynamic> jsonData = json.decode(responseBody);
+
+      // Assuming each image has a 'photo' field in the response
+      List<String> imageUrls = [];
+      for (var item in jsonData) {
+        if (item['photo'] != null) {
+          // Convert the 'photo' field to base64 or use other appropriate methods
+          String imageUrl =
+              'data:image/jpeg;base64,' + base64Encode(item['photo']);
+          imageUrls.add(imageUrl);
+        }
+      }
+
+      return imageUrls;
+    } catch (e) {
+      print('Error parsing response: $e');
+      return [];
+    }
+  }
+
   @override
   void dispose() {
     _timer.cancel();
@@ -141,7 +258,8 @@ class _SessionMemberState extends State<SessionMember> {
                       File file = File(result.files.single.path!);
                       // Upload file to the server
                       try {
-                        await uploadFile(widget.sessionID, UserManager.loggedInUserId as int, file);
+                        await uploadFile(widget.sessionID,
+                            UserManager.loggedInUserId as int, file);
                       } catch (error) {
                         print('Error uploading file: $error');
                       }
@@ -150,7 +268,7 @@ class _SessionMemberState extends State<SessionMember> {
                   child: const Text('Upload'),
                 ),
                 SizedBox(width: 20),
-                                ElevatedButton(
+                ElevatedButton(
                   onPressed: () {
                     // Call the function to navigate to SessionFilesScreen
                     Navigator.push(
@@ -163,6 +281,7 @@ class _SessionMemberState extends State<SessionMember> {
                   },
                   child: Text('Files'),
                 ),
+                SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -174,6 +293,42 @@ class _SessionMemberState extends State<SessionMember> {
                 ),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MaterialButton(
+                  onPressed: () async {
+                    // Call the function to pick an image
+                    File? selectedImage = await pickImage();
+                    if (selectedImage != null) {
+                      print('Image picked successfully: ${selectedImage.path}');
+                      // Save the selected image to the list
+                      uploadImage(widget.sessionID, selectedImage);
+                    } else {
+                      print('No image selected or an error occurred.');
+                    }
+                  },
+                  child: Icon(Icons.photo_library),
+                ),
+                MaterialButton(
+                  onPressed: () async {
+                    // Call the function to take an image
+                    File? takenImage = await takeImage();
+                    if (takenImage != null) {
+                      // Save the taken image to the list
+                      uploadImage(widget.sessionID, takenImage);
+                    }
+                  },
+                  child: Icon(Icons.camera_enhance),
+                ),
+                MaterialButton(
+                  onPressed: () async {
+                    await getImages(widget.sessionID);
+                  },
+                  child: const Text('Uploaded Photos'),
+                ),
+              ],
+            )
           ],
         ),
       ),

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:path_provider/path_provider.dart';
 
 class SessionFilesScreen extends StatefulWidget {
   final int sessionID;
@@ -17,23 +15,75 @@ class SessionFilesScreen extends StatefulWidget {
 }
 
 class _SessionFilesScreenState extends State<SessionFilesScreen> {
-  Future<void> openFile(String fileName, String fileContent) async {
+  Future<String> readFileContent(String filePath) async {
+    final file = File(filePath);
+    return await file.readAsString();
+  }
+
+  Future<void> openFile(String fileName) async {
+    final filePath = 'study_with_me/files/$fileName';
+    final file = File(filePath);
+    if (await file.exists()) {
+      print('File exists: $filePath');
+      try {
+        // Continue with opening the file...
+      } catch (error) {
+        print('Error opening file: $error');
+      }
+    } else {
+      print('File does not exist: $filePath');
+    }
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/$fileName';
-
-      // Create a temporary file to store the content
-      final tempFile = File(filePath);
-      await tempFile.writeAsBytes(base64Decode(fileContent));
-
-      final fileUri = Uri.file(filePath);
-
-      // Open the file using the default app
-      await launchUrl(fileUri);
+      // Check the file type based on its extension or other criteria
+      if (fileName.endsWith('.txt')) {
+        // Text file
+        final fileContent = await readFileContent(filePath);
+        displayTextFileContent(fileContent);
+      }
     } catch (error) {
       print('Error opening file: $error');
     }
   }
+
+  // Method to display the content of a text file
+  void displayTextFileContent(String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Text File Content'),
+          content: Text(content),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Method to display an image file
+  void displayImageFile(String filePath) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          appBar: AppBar(title: Text('Image File')),
+          body: Image.file(File(filePath)),
+        ),
+      ),
+    );
+  }
+
+  // Method to display a PDF file
+  //void displayPdfFile(String filePath) {
+  //  Navigator.of(context).push(
+  //    MaterialPageRoute(
+  //      builder: (context) => PDFViewer(document: PDFDocument.fromFile(File(filePath))),
+  //    ),
+  //  );
+  //}
 
   Future<List<Map<String, dynamic>>> getFiles(int sessionID) async {
     try {
@@ -82,12 +132,12 @@ class _SessionFilesScreenState extends State<SessionFilesScreen> {
               itemCount: files.length,
               itemBuilder: (context, index) {
                 final fileName = files[index]['file_name'];
-                final fileContent = files[index]['file_content'];
 
                 return ListTile(
                   title: Text(fileName),
                   onTap: () async {
-                    await openFile(fileName, fileContent);
+                    await openFile(fileName as String);
+                    print('File tapped: $fileName');
                   },
                 );
               },

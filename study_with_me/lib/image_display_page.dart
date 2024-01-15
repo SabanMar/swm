@@ -9,12 +9,18 @@ class ImageDisplayPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFFDDEBDD),
         title: Text('Uploaded Photos'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: images,
-        ),
+      body: ListView.builder(
+        itemCount: images.length,
+        itemBuilder: (context, index) {
+          return Container(
+            width: 300,   // adjust the width based on your needs
+            height: 300,  // adjust the height based on your needs
+            child: images[index],
+          );
+        },
       ),
     );
   }

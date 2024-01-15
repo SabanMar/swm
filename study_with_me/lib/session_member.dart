@@ -9,6 +9,7 @@ import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_with_me/files_page.dart';
 import 'package:study_with_me/homepage.dart';
+import 'package:study_with_me/image_display_page.dart';
 import 'package:study_with_me/usermanager.dart';
 import 'package:path/path.dart';
 
@@ -28,6 +29,7 @@ class _SessionMemberState extends State<SessionMember> {
   late Timer _timer;
   int _elapsedSeconds = 0;
   List<File> selectedImages = [];
+  List<Widget> images = [];
 
   @override
   void initState() {
@@ -147,8 +149,9 @@ class _SessionMemberState extends State<SessionMember> {
       );
 
       if (response.statusCode == 200) {
+        // Directly use the binary data to display the image
         List<int> photoData = response.bodyBytes;
-        displayImages(photoData);
+        displayImage(photoData);
       } else {
         print('Failed to get images. Status code: ${response.statusCode}');
       }
@@ -157,11 +160,10 @@ class _SessionMemberState extends State<SessionMember> {
     }
   }
 
-  void displayImages(List<int> photoData) {
-    List<Widget> imageWidgets = [];
-    for(int i=0; i < photoData.length; i++) {
-      imageWidgets.add(Image.memory(Uint8List.fromList(photoData[i] as List<int>)));
-    }
+  void displayImage(List<int> imageData) {
+    setState(() {
+      images.add(Image.memory(Uint8List.fromList(imageData)));
+    });
   }
 
   List<String> parseImagesFromResponse(String responseBody) {
@@ -323,7 +325,21 @@ class _SessionMemberState extends State<SessionMember> {
                 ),
                 MaterialButton(
                   onPressed: () async {
+                    // Call the function to get images
                     await getImages(widget.sessionID);
+
+                    // Navigate to ImageDisplayPage with the list of images
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          // Clear the images list
+                          List<Image> clearedImages = List.from(images);
+                          images.clear();
+                          return ImageDisplayPage(images: clearedImages);
+                        },
+                      ),
+                    );
                   },
                   child: const Text('Uploaded Photos'),
                 ),

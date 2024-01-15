@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:study_with_me/available_avatars.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/edit_photo_profile.dart';
 import 'package:study_with_me/homepage.dart';
 import 'get_started.dart';
 import 'usermanager.dart';
@@ -224,6 +225,12 @@ class _ProfileState extends State<Profile> {
                             MaterialPageRoute(
                                 builder: (context) => ChangePasswordPage()));
                       }
+                       else if (value == 'Edit photo profile') {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EditPhotoProfilePage()));
+                      }
                     },
                     itemBuilder: (BuildContext context) => [
                       PopupMenuItem<String>(
@@ -241,6 +248,10 @@ class _ProfileState extends State<Profile> {
                       PopupMenuItem<String>(
                         value: 'Log out',
                         child: Text('Log out'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'Edit photo profile',
+                        child: Text('Edit photo profile'),
                       ),
                     ],
                   ),

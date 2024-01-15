@@ -168,10 +168,10 @@ def get_user_data():
                 #    user_data['avatars'] = []  # If no avatars found, set an empty list  
                 # Adding avatars data to the user_data dictionary
                 
-                query_photo_profile = "SELECT a.id FROM avatar a INNER JOIN users u ON a.id = u.avatar WHERE u.id = %s"
+                query_photo_profile = "SELECT a.id, a.file_name FROM avatar a INNER JOIN users u ON a.id = u.avatar WHERE u.id = %s"
                 cursor.execute(query_photo_profile, user_id)
                 photo_profile = cursor.fetchone()
-                user_data['avatar'] = str(photo_profile['id'])
+                user_data['avatar'] = str(photo_profile['file_name'])
 
                 return jsonify(user_data), 200
             else:
@@ -215,6 +215,7 @@ def get_session_details():
                                     u_host.phone AS host_phone,
                                     u_host.coins AS host_coins,
                                     u_host.bio AS host_bio,
+                                    a1.file_name AS host_avatar,
                                     u_member1.username AS member1_username,
                                     u_member1.university AS member1_university,
                                     u_member1.email AS member1_email,
@@ -223,6 +224,7 @@ def get_session_details():
                                     u_member1.phone AS member1_phone,
                                     u_member1.coins AS member1_coins,
                                     u_member1.bio AS member1_bio,
+                                    a2.file_name AS member1_avatar,
                                     u_member2.username AS member2_username,
                                     u_member2.university AS member2_university,
                                     u_member2.email AS member2_email,
@@ -231,6 +233,7 @@ def get_session_details():
                                     u_member2.phone AS member2_phone,
                                     u_member2.coins AS member2_coins,
                                     u_member2.bio AS member2_bio,
+                                    a3.file_name AS member2_avatar,
                                     u_member3.username AS member3_username,
                                     u_member3.university AS member3_university,
                                     u_member3.email AS member3_email,
@@ -239,6 +242,7 @@ def get_session_details():
                                     u_member3.phone AS member3_phone,
                                     u_member3.coins AS member3_coins,
                                     u_member3.bio AS member3_bio,
+                                    a4.file_name AS member3_avatar,
                                     u_member4.username AS member4_username,
                                     u_member4.university AS member4_university,
                                     u_member4.email AS member4_email,
@@ -246,13 +250,19 @@ def get_session_details():
                                     u_member4.last_name AS member4_last_name,
                                     u_member4.phone AS member4_phone,
                                     u_member4.coins AS member4_coins,
-                                    u_member4.bio AS member4_bio
+                                    u_member4.bio AS member4_bio,
+                                    a5.file_name AS member4_avatar
                                 FROM sessions s
-                                LEFT JOIN users u_host ON s.host_id = u_host.id
-                                LEFT JOIN users u_member1 ON s.member1_id = u_member1.id
-                                LEFT JOIN users u_member2 ON s.member2_id = u_member2.id
-                                LEFT JOIN users u_member3 ON s.member3_id = u_member3.id
-                                LEFT JOIN users u_member4 ON s.member4_id = u_member4.id
+                                LEFT JOIN users u_host ON s.host_id = u_host.id 
+                                LEFT JOIN avatar a1 ON u_host.avatar = a1.id
+                                LEFT JOIN users u_member1 ON s.member1_id = u_member1.id 
+                                LEFT JOIN avatar a2 ON u_member1.avatar = a2.id
+                                LEFT JOIN users u_member2 ON s.member2_id = u_member2.id 
+                                LEFT JOIN avatar a3 ON u_member2.avatar = a3.id
+                                LEFT JOIN users u_member3 ON s.member3_id = u_member3.id 
+                                LEFT JOIN avatar a4 ON u_member3.avatar = a4.id
+                                LEFT JOIN users u_member4 ON s.member4_id = u_member4.id 
+                                LEFT JOIN avatar a5 ON u_member4.avatar = a5.id
                                 WHERE s.id = %s;
                                 """
             cursor.execute(query_session_data, session_id)
@@ -435,7 +445,7 @@ def unlock_avatar():
         with conn.cursor() as cursor:
             try:
                 cursor.execute(query2, parameters2)
-                user= cursor.fetchone()
+                user = cursor.fetchone()
                 user_coins = user['coins']
                 cursor.execute(query3, parameters3)
                 avatar= cursor.fetchone()
@@ -467,7 +477,51 @@ def unlock_avatar():
                 
     return jsonify({"error": "Method not allowed"}), 405
 
+@app.route('/my_avatars', methods = ['GET'])
+def my_avatars():
+    if request.method == 'GET':
+        user_id = request.args.get('user_id')
+        conn = pymysql.connect(**config1)
 
+        query = "SELECT a.* FROM avatar a INNER JOIN users_avatars ua ON a.id = ua.avatar_id INNER JOIN users u ON ua.user_id = u.id WHERE u.id = %s"
+
+        with conn.cursor() as cursor:
+            try:
+                cursor.execute(query,(user_id,))
+                myAvatars = cursor.fetchall()
+                if myAvatars:
+                    return jsonify(myAvatars), 200
+                else:
+                    return jsonify({"You don't have unlocked avatars"}), 201
+            except Exception as e:
+                print(f"Error occurred: {str(e)}")
+                return jsonify({"message": "Internal Server Error"}), 500
+                
+    return jsonify({"error": "Method not allowed"}), 405
+
+@app.route('/select_avatar', methods = ['POST'])
+def select_avatar():
+    avatar_id = int(request.args.get('avatar_id'))
+    user_id = int(request.args.get('user_id'))
+    
+    try:
+        conn = pymysql.connect(**config1)
+
+        with conn.cursor() as cursor:
+            query = "UPDATE users SET avatar = %s WHERE id = %s"
+            cursor.execute(query,(avatar_id,user_id))
+            conn.commit()
+    
+        if cursor.rowcount > 0:
+            return jsonify({"message" : "Your photo profile changed successfully"}), 200
+        else :
+            return jsonify({"message" : "Your photo profile reamined the same"}), 201
+        
+    except Exception as e:
+                print(f"Error occurred: {str(e)}")
+                return jsonify({"message": "Internal Server Error"}), 500
+    
+                
 @app.route('/upload_file', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
@@ -562,12 +616,12 @@ def get_image():
             photo_buffer.extend(photo['photo'])
 
         # Send the byte buffer as a response
-            return send_file(
-                io.BytesIO(photo_buffer),
-                mimetype='image/jpeg',
-                as_attachment=True,
-                download_name=f'session_{session_id}.jpg'
-            )
+        return send_file(
+            io.BytesIO(photo_buffer),
+            mimetype='image/jpeg',
+            as_attachment=True,
+            download_name=f'session_{session_id}.jpg'
+        )
     
     except Exception as e:
         print(f"Error retrieving photos: {e}")

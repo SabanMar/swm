@@ -8,6 +8,8 @@
 	<string>Photo Library Access Warning</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera Access Warning</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>We need phone call permission for XYZ feature</string>
 	<key>CFBundleDisplayName</key>
 	<string>Study With Me</string>
 	<key>CFBundleExecutable</key>

@@ -23,6 +23,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
   Map<String, dynamic> sessionData = {};
   late Timer _timer;
   late Future<Map<String, dynamic>> _sessionDataFuture;
+  List<String> avatarImages = [];
 
   @override
   void initState() {
@@ -107,6 +108,26 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
     }
   }
 
+    List<String> avatarList() {
+    List<String> images = [];
+    for (int i = 1; i <= 40; i++) {
+      String imagePath = 'assets/images/avatars/Frame 1 ($i).png';
+      images.add(imagePath);
+    }
+    images.add('assets/images/avatars/Frame 1.png');
+    return images;
+  }
+
+  String getSelectedAvatar(Map<String, dynamic> sessionData) {
+    String? hostAvatar = sessionData['host_avatar']; // the file name in database
+    for (String avatarImage in avatarImages) {
+      if (hostAvatar != null && avatarImage.contains(hostAvatar)) {
+        return avatarImage; // Return the matched avatar
+      }
+    }
+    return 'assets/images/avatars/Frame 1.png'; // Default avatar
+  }
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = '';
@@ -157,12 +178,11 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                       SizedBox(
                         width: 5,
                       ),
-                      Container(
-                        height: 65,
-                        width: 65,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle, color: Colors.white),
-                      ),
+                      CircleAvatar(
+                            backgroundImage:
+                                AssetImage(getSelectedAvatar(sessionData)),
+                            radius: 25,
+                          ),
                     ],
                   ),
                   SizedBox(

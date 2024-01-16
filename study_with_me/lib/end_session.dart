@@ -111,7 +111,7 @@ class _EndSessionState extends State<EndSession> {
                       }
                     },
                   ),
-                  Text('You earned --- coins'),
+                  Text('You earned ${widget.sessionData['coins']} coins'),
                 ],
               ))),
           SizedBox(height: 200),

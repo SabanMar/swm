@@ -260,10 +260,22 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            GestureDetector(
-                                onTap: () => (MapsLauncher.launchQuery(
-                                    sessionData['location'])),
-                                child: Text(sessionData['location'])),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => (MapsLauncher.launchQuery(
+                                      sessionData['location'])),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.location_on), // Add the location icon here
+                                      SizedBox(width: 5), // Add some spacing between the icon and the text
+                                      Text(sessionData['location']),
+                                      
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                             Text(sessionData['subject']),
                             Text(formattedDate),
                             Text(formattedStartTime),

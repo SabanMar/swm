@@ -2,10 +2,12 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
+import 'package:study_with_me/image_display_page.dart';
 
 class HistoryPage extends StatefulWidget {
   final String userId;
@@ -18,6 +20,7 @@ class HistoryPage extends StatefulWidget {
 
 class _HistoryPageState extends State<HistoryPage> {
   List<Map<String, dynamic>> sessionsHistory = [];
+  List<Widget> images = [];
   @override
   void initState() {
     super.initState();
@@ -58,6 +61,44 @@ class _HistoryPageState extends State<HistoryPage> {
     return minutes;
   }
 
+    Future<void> getImages(int sessionID) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${config.localhost}/get_image?session_id=$sessionID'),
+      );
+
+      if (response.statusCode == 200) {
+        // Assuming the response is in JSON format
+        Map<String, dynamic> jsonResponse = json.decode(response.body);
+        List<dynamic> jsonData = jsonResponse['images'];
+        for (var item in jsonData) {
+          // Use the base64-encoded image data
+          String imageBase64 = item['photo'];
+          displayImage(imageBase64);
+        }
+      } else {
+        print('Failed to get images. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error during image retrieval: $e');
+    }
+  }
+
+    void displayImage(String imageBase64) {
+    try {
+      List<int> imageData = base64Decode(imageBase64);
+      print('Image data length: ${imageData.length}');
+      setState(() {
+        images.add(Image.memory(Uint8List.fromList(imageData)));
+      });
+      print('Number of images: ${images.length}');
+    } catch (e) {
+      print('Error decoding image: $e');
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,8 +129,21 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               for (int i = 0; i < sessionsHistory.length; i++)
                 GestureDetector(
-                  onTap: () {
-                    //EDW MARIA PAME IMAGES MIN TO KSEXASEIS!!!!!!!! ILIAS
+                  onTap: () async {
+                    // Call the function to get images
+                    await getImages(sessionsHistory[i]['id']);
+                    // Navigate to ImageDisplayPage with the list of images
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          // Clear the images list
+                          List<Image> clearedImages = List.from(images);
+                          images.clear();
+                          return ImageDisplayPage(images: clearedImages);
+                        },
+                      ),
+                    );
                   },
                   child: Container(
                       //padding: EdgeInsets.all(10),

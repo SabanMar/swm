@@ -665,15 +665,73 @@ def get_all_sessions_history():
         user_id = request.args.get('user_id')
         conn = pymysql.connect(**config1)
         with conn.cursor() as cursor:
-            history_query = "SELECT * FROM sessions WHERE host_id = %s OR member1_id = %s OR member2_id = %s OR member3_id = %s OR member4_id = %s"
+            history_query = """
+                SELECT 
+                    sessions.*, 
+                    COUNT(session_images.session_id) as image_count
+                FROM 
+                    sessions
+                LEFT JOIN 
+                    session_images ON sessions.id = session_images.session_id
+                WHERE 
+                    host_id = %s OR member1_id = %s OR member2_id = %s OR member3_id = %s OR member4_id = %s
+                GROUP BY 
+                    sessions.id
+            """
             cursor.execute(history_query, (user_id, user_id, user_id, user_id, user_id))
             history = cursor.fetchall()
-                
+
             if history:
                 return jsonify(history), 200
             return jsonify("History empty."), 404
-        
     return jsonify({'error': 'Method not allowed'}), 405
+
+@app.route("/count_images", methods=['GET'])
+def count_images():
+    if request.method == 'GET':
+        session_id = int(request.args.get('session_id'))
+
+        query = "SELECT COUNT(*) FROM session_images WHERE session_id = %s"
+        conn = pymysql.connect(**config1)
+        with conn.cursor() as cursor:
+            cursor.execute(query,(session_id,))
+            total_images = cursor.fetchone()
+        
+        if total_images:
+            return jsonify(total_images), 200
+        else:
+            return jsonify({"message: Images not found"}), 201
+    else:
+        return jsonify({'error': 'Method not allowed'}), 405
+
+
+@app.route("/add_coins", methods=['POST'])
+def add_coins():
+    session_id = int(request.args.get('session_id'))
+    coins = int(request.args.get('coins'))
+
+    query1 = "SELECT * FROM sessions WHERE id = %s"
+    query2 = "UPDATE sessions SET coins = %s WHERE id = %s"
+    query3 = "UPDATE users SET coins = coins + %s WHERE id = %s"
+
+    conn = pymysql.connect(**config1)
+    with conn.cursor() as cursor:
+        cursor.execute(query1,(session_id,))
+        session = cursor.fetchone()
+        if session:
+            cursor.execute(query2,(coins,session_id))
+            conn.commit()
+            cursor.execute(query3,(coins,session['host_id']))
+
+            for i in range(1,session['current_members']+1):
+                query4 = "UPDATE users SET coins = coins + %s WHERE id = %s"
+                cursor.execute(query4,(coins,session[f'member{i}_id']))
+                conn.commit()
+
+            return jsonify(session), 200
+        
+        return jsonify({"message: Session not found"}), 401
+
 
 if __name__ == "__main__":
     app.run(debug=True)

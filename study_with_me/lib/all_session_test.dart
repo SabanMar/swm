@@ -1,8 +1,7 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_with_me/session_details_member.dart';
@@ -28,7 +27,7 @@ class AllSessionsTest extends StatefulWidget {
 class _AllSessionsTestState extends State<AllSessionsTest> {
   List<Map<String, dynamic>> sessions = [];
   List<String> avatarImages = [];
-   @override
+  @override
   void initState() {
     super.initState();
     fetchAllSessions(
@@ -39,41 +38,79 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
     );
   }
 
-  Future<void> fetchAllSessions(String subject, String location, DateTime? start_time, DateTime? end_time) async {
+  Future<void> fetchAllSessions(String subject, String location,
+      DateTime? start_time, DateTime? end_time) async {
     final url = Uri.parse('${config.localhost}/get_all_sessions');
 
+    final Map<String, dynamic> requestBody = {
+      'subject': subject,
+      'location': location,
+    };
 
-  final Map<String, dynamic> requestBody = {
-    'subject': subject,
-    'location': location,
-  };
+    if (start_time != null) {
+      requestBody['start_time'] = start_time.toIso8601String();
+    }
+    if (end_time != null) {
+      requestBody['end_time'] = end_time.toIso8601String();
+    }
 
-  if (start_time != null) {
-    requestBody['start_time'] = start_time.toIso8601String();
-  }
-  if (end_time != null) {
-    requestBody['end_time'] = end_time.toIso8601String();
-  }
-
-  final response = await http.post(
-    url,
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(requestBody),
-  );
+    final response = await http.post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(requestBody),
+    );
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
+
       setState(() {
         sessions = List<Map<String, dynamic>>.from(responseData);
       });
+      for (int i = 0; i < responseData.length; i++) {
+        // Fetch host details for each session
+        await fetchHostDetails(responseData[i]['host_id'], i);
+      }
     } else {
       print("No sessions");
     }
   }
 
-    List<String> avatarList() {
+  Future<void> fetchHostDetails(int hostId, int sessionIndex) async {
+    final url = Uri.parse('${config.localhost}/get_user_data?user_id=$hostId');
+
+    final response = await http.get(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final hostData = jsonDecode(response.body);
+
+      // Check if the sessionIndex is within the bounds of the sessions list
+      if (sessionIndex >= 0 && sessionIndex < sessions.length) {
+        setState(() {
+          sessions[sessionIndex]['host_username'] = hostData['username'];
+          sessions[sessionIndex]['host_university'] = hostData['university'];
+          sessions[sessionIndex]['host_avatar'] = hostData['avatar'];
+        });
+      } else {
+        print("Invalid sessionIndex: $sessionIndex");
+      }
+    } else {
+      print("Failed to fetch host details for host ID: $hostId");
+    }
+  }
+
+  DateTime parseDateString(String dateString) {
+    DateFormat format = DateFormat("E, d MMM yyyy HH:mm:ss 'GMT'");
+    return format.parse(dateString);
+  }
+
+  List<String> avatarList() {
     List<String> images = [];
     for (int i = 1; i <= 40; i++) {
       String imagePath = 'assets/images/avatars/Frame 1 ($i).png';
@@ -83,17 +120,15 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
     return images;
   }
 
-  String getSelectedAvatar(Map<String, dynamic> sessionData) {
-    String? hostAvatar =
-        sessionData['host_avatar']; // the file name in database
+  String getSelectedAvatar(Map<String, dynamic> userData) {
+    String? userAvatar = userData['avatar']; // the file name in database
     for (String avatarImage in avatarImages) {
-      if (hostAvatar != '1' && avatarImage.contains(hostAvatar!)) {
+      if (userAvatar != null && avatarImage.contains(userAvatar)) {
         return avatarImage; // Return the matched avatar
       }
     }
     return 'assets/images/avatars/Frame 1.png'; // Default avatar
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,18 +165,30 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           CircleAvatar(
-                        backgroundImage:
-                            AssetImage(getSelectedAvatar(sessions[i])),
-                        radius: 25,
-                      ),
+                            backgroundImage:
+                                AssetImage(getSelectedAvatar(sessions[i])),
+                            radius: 35,
+                          ),
                           Column(
                             children: [
+                              Text("Date:" +
+                                  DateFormat.yMMMd().format(parseDateString(
+                                      sessions[i]['start_time'])) +
+                                  " " +
+                                  DateFormat.Hm().format(parseDateString(
+                                      sessions[i]['start_time']))),
+                              Text("Host username:" +
+                                  sessions[i]['host_username'].toString()),
                               Text("Location:" + sessions[i]['location']),
                               Text("Subject:" + sessions[i]['subject']),
+                              Text("Memebers: " +
+                                  sessions[i]['current_members'].toString() +
+                                  "/" +
+                                  sessions[i]['max_members'].toString())
                             ],
                           ),
                           Icon(
-                            Icons.menu_book,
+                            Icons.menu_book_sharp,
                             size: 50,
                           )
                         ],
@@ -152,5 +199,3 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
         ));
   }
 }
-
-

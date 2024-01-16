@@ -121,6 +121,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
   String getSelectedAvatar(Map<String, dynamic> sessionData) {
     String? hostAvatar = sessionData['host_avatar']; // the file name in database
     for (String avatarImage in avatarImages) {
+      print('hostAvatar: $hostAvatar, avatarImage: $avatarImage');
       if (hostAvatar != null && avatarImage.contains(hostAvatar)) {
         return avatarImage; // Return the matched avatar
       }

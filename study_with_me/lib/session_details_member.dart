@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:study_with_me/session_member.dart';
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
@@ -36,7 +37,6 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
         _sessionDataFuture = fetchSessionData();
       });
     });
-
   }
 
   @override
@@ -69,7 +69,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
     }
   }
 
-  void joinSession(int sessionID, int user_id) async {
+  void joinSession(String sessionID, String user_id) async {
     final url = Uri.parse('${config.localhost}/join_session');
 
     final Map<String, dynamic> requestData = {
@@ -155,7 +155,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
     String? hostAvatar =
         sessionData['host_avatar']; // the file name in database
     for (String avatarImage in avatarImages) {
-      if (hostAvatar != '1' && avatarImage.contains(hostAvatar!)) {
+      if (hostAvatar != null && avatarImage.contains(hostAvatar)) {
         return avatarImage; // Return the matched avatar
       }
     }
@@ -173,7 +173,6 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
     }
     return 'assets/images/avatars/Frame 1.png'; // Default avatar
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +260,10 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(sessionData['location']),
+                            GestureDetector(
+                                onTap: () => (MapsLauncher.launchQuery(
+                                    sessionData['location'])),
+                                child: Text(sessionData['location'])),
                             Text(sessionData['subject']),
                             Text(formattedDate),
                             Text(formattedStartTime),
@@ -336,8 +338,8 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                     children: [
                       ElevatedButton(
                         onPressed: () => joinSession(
-                            widget.sessionID,
-                            UserManager.loggedInUserId!),
+                            widget.sessionID.toString(),
+                            UserManager.loggedInUserId.toString()),
                         child: Text(
                           "Join",
                           style: TextStyle(color: Colors.black),

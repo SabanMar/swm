@@ -3,9 +3,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
-import 'package:study_with_me/session_details_member.dart';
 
 class HistoryPage extends StatefulWidget {
   final String userId;
@@ -42,9 +42,26 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
+  DateTime parseDateString(String dateString) {
+    DateFormat format = DateFormat("E, d MMM yyyy HH:mm:ss 'GMT'");
+    return format.parse(dateString);
+  }
+
+  int calculateSessionDuration(String startTime, String endTime) {
+    DateTime startDateTime = parseDateString(startTime);
+    DateTime endDateTime = parseDateString(endTime);
+
+    Duration difference = endDateTime.difference(startDateTime);
+
+    int minutes = difference.inMinutes;
+
+    return minutes;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Color(0xFF618264),
         appBar: AppBar(
           backgroundColor: const Color(0xFFDDEBDD),
         ),
@@ -53,48 +70,175 @@ class _HistoryPageState extends State<HistoryPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "ARCHIVE",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25),
+                  ),
+                  Icon(
+                    Icons.bookmark,
+                    color: Colors.white,
+                  )
+                ],
+              ),
               for (int i = 0; i < sessionsHistory.length; i++)
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SessionDetailsUser(
-                          sessionID: sessionsHistory[i]['id'],
-                        ),
-                      ),
-                    );
+                    //EDW MARIA PAME IMAGES MIN TO KSEXASEIS!!!!!!!! ILIAS
                   },
                   child: Container(
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.all(10),
+                      //padding: EdgeInsets.all(10),
+                      margin: EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                            topLeft: Radius.circular(8),
+                            topRight: Radius.circular(8)),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
                         children: [
-                          Container(
-                            height: 50,
-                            width: 50,
-                            decoration: BoxDecoration(
-                                color: Colors.green, shape: BoxShape.circle),
-                          ),
-                          Column(
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              Text("Host ID:" +
-                                  sessionsHistory[i]['host_id'].toString()),
                               Text(
-                                  "Location:" + sessionsHistory[i]['location']),
-                              Text("Subject:" + sessionsHistory[i]['subject']),
+                                "Session #" + (i + 1).toString(),
+                                style: TextStyle(
+                                    color:
+                                        const Color.fromARGB(255, 68, 102, 70),
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                sessionsHistory[i]['subject'],
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                width: 50,
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    sessionsHistory[i]['coins'].toString(),
+                                    style: TextStyle(
+                                        color: Colors.yellow,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Image.asset(
+                                    'assets/images/coin.png',
+                                    height: 15,
+                                  )
+                                ],
+                              ),
                             ],
                           ),
-                          Icon(
-                            Icons.menu_book_sharp,
-                            size: 50,
-                          )
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFDDEBDD),
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(20),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.circular(6)),
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.watch_later_rounded,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 3,
+                                        ),
+                                        Text(
+                                          DateFormat.Hm().format(
+                                                  parseDateString(
+                                                      sessionsHistory[i]
+                                                          ['start_time'])) +
+                                              "-" +
+                                              DateFormat.Hm().format(
+                                                  parseDateString(
+                                                      sessionsHistory[i]
+                                                          ['end_time'])),
+                                          style: TextStyle(
+                                              color: const Color(0xFF618264),
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.collections_bookmark_rounded,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 3,
+                                        ),
+                                        Text(
+                                          calculateSessionDuration(
+                                                      sessionsHistory[i]
+                                                          ['start_time'],
+                                                      sessionsHistory[i]
+                                                          ['end_time'])
+                                                  .toString() +
+                                              "'",
+                                          style: TextStyle(
+                                              color: const Color(0xFF618264),
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(
+                                          Icons.library_books,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                        SizedBox(
+                                          width: 3,
+                                        ),
+                                        Text(
+                                          sessionsHistory[i]['image_count']
+                                                  .toString() +
+                                              " docs",
+                                          style: TextStyle(
+                                              color: const Color(0xFF618264),
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       )),
                 ),

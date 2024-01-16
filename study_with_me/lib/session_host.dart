@@ -30,6 +30,9 @@ class _SessionHostState extends State<SessionHost> {
   int _elapsedSeconds = 0;
   bool _isPaused = false;
   List<Widget> images = [];
+  int _currentElapsedTime = 0;
+  int _buttonPressedCount = 0;
+  int _total = 0;
 
   @override
   void initState() {
@@ -57,6 +60,7 @@ class _SessionHostState extends State<SessionHost> {
   void togglePause() {
     setState(() {
       _isPaused = !_isPaused;
+      _buttonPressedCount++;
     });
     if (_isPaused) {
       _timer.cancel(); // Pause the timer
@@ -189,6 +193,28 @@ class _SessionHostState extends State<SessionHost> {
     }
   }
 
+  Future<void> addCoins(int sessionID, int coins) async {
+    final url = Uri.parse(
+        '${config.localhost}/add_coins?session_id=$sessionID&coins=$coins');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Coins added successfully');
+      } else {
+        print('Failed to add coins. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error during coins addition: $error');
+    }
+  }
+
   @override
   void dispose() {
     _timer.cancel();
@@ -292,13 +318,22 @@ class _SessionHostState extends State<SessionHost> {
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    try {
+                      await addCoins(widget.sessionID, 10);
+                    } catch (error) {
+                      print("Error: $error");
+                    }
+                    _currentElapsedTime = _elapsedSeconds;
+                    _total = _buttonPressedCount;
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => EndSession(
                                 sessionID: widget.sessionData['id'],
-                                sessionData: widget.sessionData)));
+                                sessionData: widget.sessionData,
+                                elapsedTime: _currentElapsedTime,
+                                buttonPressCount: _total)));
                   },
                   child: const Text('End'),
                 ),

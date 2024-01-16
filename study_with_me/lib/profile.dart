@@ -5,6 +5,7 @@ import 'package:study_with_me/available_avatars.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'package:study_with_me/edit_photo_profile.dart';
+import 'package:study_with_me/history.dart';
 import 'package:study_with_me/homepage.dart';
 import 'get_started.dart';
 import 'usermanager.dart';
@@ -133,9 +134,8 @@ class _ProfileState extends State<Profile> {
                               children: <Widget>[
                                 SizedBox(width: 5),
                                 IconButton(
-                                  icon: Icon(
-                                    Icons.shopping_basket,
-                                    color: Colors.green),
+                                  icon: Icon(Icons.shopping_basket,
+                                      color: Colors.green),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -197,9 +197,10 @@ class _ProfileState extends State<Profile> {
                           SizedBox(height: 10),
                           Padding(
                             padding: const EdgeInsets.all(10.0),
-                            child: Text( userData['bio'] == null 
-                              ? '':
-                              '${userData['bio']}',
+                            child: Text(
+                              userData['bio'] == null
+                                  ? ''
+                                  : '${userData['bio']}',
                               style:
                                   TextStyle(fontSize: 12, color: Colors.black),
                             ),
@@ -224,8 +225,7 @@ class _ProfileState extends State<Profile> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ChangePasswordPage()));
-                      }
-                       else if (value == 'Edit photo profile') {
+                      } else if (value == 'Edit photo profile') {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -264,7 +264,12 @@ class _ProfileState extends State<Profile> {
                           icon: const Icon(Icons.archive_rounded),
                           iconSize: 40,
                           onPressed: () {
-                            // Implement the functionality for the archive button
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => HistoryPage(
+                                      userId: UserManager.loggedInUserId.toString())),
+                            );
                           },
                         ),
                       ),
@@ -274,7 +279,7 @@ class _ProfileState extends State<Profile> {
                         child: IconButton(
                           icon: const Icon(Icons.home),
                           iconSize: 40,
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.push(
                                 context,
                                 // ?? 0 set the userID = 0 if the UserManager.loggedInUserId is null

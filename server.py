@@ -279,7 +279,6 @@ def get_session_details():
 def join_session():
     if request.method == 'POST':
         data = request.get_json()
-
         session_id = data.get('session_id')
         member_id = data.get('member_id')  # Assuming the ID of the user joining
 
@@ -319,7 +318,6 @@ def leave_session():
         data = request.get_json()
         session_id = data.get('session_id')
         user_id = data.get('user_id')   
-
         conn = pymysql.connect(**config1)
 
         with conn.cursor() as cursor:
@@ -327,12 +325,15 @@ def leave_session():
             query_session_details = "SELECT * FROM sessions WHERE id = %s"
             cursor.execute(query_session_details, session_id)
             session_details = cursor.fetchone()
+            query_update_members = "UPDATE sessions SET current_members = current_members - 1 WHERE id = %s"
 
             if session_details:
                 if session_details["member1_id"] == user_id:
                     leave_query = "UPDATE sessions SET member1_id = NULL WHERE id = %s"
                     cursor.execute(leave_query, (session_id,))
                     result = cursor.fetchone()
+                    conn.commit()
+                    cursor.execute(query_update_members,(session_id,))
                     conn.commit()
                     return jsonify({"message": "User successfully removed from the session"}), 200
                 
@@ -341,12 +342,16 @@ def leave_session():
                     cursor.execute(leave_query, (session_id,))
                     result = cursor.fetchone()
                     conn.commit()
+                    cursor.execute(query_update_members,(session_id,))
+                    conn.commit()
                     return jsonify({"message": "User successfully removed from the session"}), 200
                 
                 if session_details["member3_id"] == user_id:
                     leave_query = "UPDATE sessions SET member3_id = NULL WHERE id = %s"
                     cursor.execute(leave_query, (session_id,))
                     result = cursor.fetchone()
+                    conn.commit()
+                    cursor.execute(query_update_members,(session_id,))
                     conn.commit()
                     return jsonify({"message": "User successfully removed from the session"}), 200
                 
@@ -355,6 +360,8 @@ def leave_session():
                     cursor.execute(leave_query, (session_id,))
                     result = cursor.fetchone()
                     print(result)
+                    conn.commit()
+                    cursor.execute(query_update_members,(session_id,))
                     conn.commit()
                     return jsonify({"message": "User successfully removed from the session"}), 200
                 
@@ -374,9 +381,11 @@ def get_all_sessions():
         start_time_str = data.get('start_time')
         end_time_str = data.get('end_time')
 
+        current_time = datetime.now()
+
         conn = pymysql.connect(**config1)
-        query_session_data = "SELECT * FROM sessions WHERE 1=1"
-        parameters = []
+        query_session_data = "SELECT * FROM sessions WHERE start_time >= %s"
+        parameters = [current_time]
 
         if subject != 'Everything':
             query_session_data += " AND subject = %s"
@@ -384,8 +393,6 @@ def get_all_sessions():
         if location:
             query_session_data += " AND location = %s"
             parameters.append(location)
-
-        current_time = datetime.now()
 
         if start_time_str:
             start_time = datetime.strptime(start_time_str, "%Y-%m-%dT%H:%M:%S.%f")
@@ -610,18 +617,11 @@ def get_image():
         if not photos:
             return jsonify({'error': 'No photos found for the specified session'}), 404
         
-        # Create a byte buffer to hold all photo data
-        photo_buffer = bytearray()
-        for photo in photos:
-            photo_buffer.extend(photo['photo'])
+        # Create a list of images, each represented as a dictionary
+        images = [{'photo': base64.b64encode(photo['photo']).decode('utf-8')} for photo in photos]
 
-        # Send the byte buffer as a response
-        return send_file(
-            io.BytesIO(photo_buffer),
-            mimetype='image/jpeg',
-            as_attachment=True,
-            download_name=f'session_{session_id}.jpg'
-        )
+        # Send the list of images as a response
+        return jsonify({'images': images})
     
     except Exception as e:
         print(f"Error retrieving photos: {e}")
@@ -659,8 +659,21 @@ def get_files(session_id):
         print(f"Error retrieving files: {e}")
         return jsonify({'error': 'Failed to retrieve files'}), 500
 
-
+@app.route("/get_all_sessions_history", methods=['GET'])
+def get_all_sessions_history():
+    if request.method == 'GET':
+        user_id = request.args.get('user_id')
+        conn = pymysql.connect(**config1)
+        with conn.cursor() as cursor:
+            history_query = "SELECT * FROM sessions WHERE host_id = %s OR member1_id = %s OR member2_id = %s OR member3_id = %s OR member4_id = %s"
+            cursor.execute(history_query, (user_id, user_id, user_id, user_id, user_id))
+            history = cursor.fetchall()
+                
+            if history:
+                return jsonify(history), 200
+            return jsonify("History empty."), 404
+        
+    return jsonify({'error': 'Method not allowed'}), 405
 
 if __name__ == "__main__":
     app.run(debug=True)
-

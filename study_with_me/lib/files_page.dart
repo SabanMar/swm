@@ -76,14 +76,6 @@ class _SessionFilesScreenState extends State<SessionFilesScreen> {
     );
   }
 
-  // Method to display a PDF file
-  //void displayPdfFile(String filePath) {
-  //  Navigator.of(context).push(
-  //    MaterialPageRoute(
-  //      builder: (context) => PDFViewer(document: PDFDocument.fromFile(File(filePath))),
-  //    ),
-  //  );
-  //}
 
   Future<List<Map<String, dynamic>>> getFiles(int sessionID) async {
     try {

@@ -7,6 +7,8 @@ class ImageDisplayPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Number of images: ${images.length}');
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFFDDEBDD),
@@ -15,10 +17,12 @@ class ImageDisplayPage extends StatelessWidget {
       body: ListView.builder(
         itemCount: images.length,
         itemBuilder: (context, index) {
-          return Container(
-            width: 300,   // adjust the width based on your needs
-            height: 300,  // adjust the height based on your needs
-            child: images[index],
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20.0), // Adjust the padding as needed
+            child: Container(
+              // adjust the height based on your needs
+              child: images[index],
+            ),
           );
         },
       ),

@@ -81,6 +81,29 @@ class _SessionMemberState extends State<SessionMember> {
     }
   }
 
+  Future<void> leaveSession(int userID, int sessionId) async {
+    final url = Uri.parse(
+        '${config.localhost}/leave_session');
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({"session_id": sessionId, "user_id": userID}),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to leave user data');
+      }
+    } catch (error) {
+      // Handle errors here
+      print('Error: $error');
+      throw error;
+    }
+  }
+
   Future<void> uploadImage(int sessionID, File image) async {
     try {
       var request = http.MultipartRequest('POST',
@@ -149,9 +172,14 @@ class _SessionMemberState extends State<SessionMember> {
       );
 
       if (response.statusCode == 200) {
-        // Directly use the binary data to display the image
-        List<int> photoData = response.bodyBytes;
-        displayImage(photoData);
+        // Assuming the response is in JSON format
+        Map<String, dynamic> jsonResponse = json.decode(response.body);
+        List<dynamic> jsonData = jsonResponse['images'];
+        for (var item in jsonData) {
+          // Use the base64-encoded image data
+          String imageBase64 = item['photo'];
+          displayImage(imageBase64);
+        }
       } else {
         print('Failed to get images. Status code: ${response.statusCode}');
       }
@@ -160,32 +188,16 @@ class _SessionMemberState extends State<SessionMember> {
     }
   }
 
-  void displayImage(List<int> imageData) {
-    setState(() {
-      images.add(Image.memory(Uint8List.fromList(imageData)));
-    });
-  }
-
-  List<String> parseImagesFromResponse(String responseBody) {
+  void displayImage(String imageBase64) {
     try {
-      // Assuming the response is in JSON format
-      final List<dynamic> jsonData = json.decode(responseBody);
-
-      // Assuming each image has a 'photo' field in the response
-      List<String> imageUrls = [];
-      for (var item in jsonData) {
-        if (item['photo'] != null) {
-          // Convert the 'photo' field to base64 or use other appropriate methods
-          String imageUrl =
-              'data:image/jpeg;base64,' + base64Encode(item['photo']);
-          imageUrls.add(imageUrl);
-        }
-      }
-
-      return imageUrls;
+      List<int> imageData = base64Decode(imageBase64);
+      print('Image data length: ${imageData.length}');
+      setState(() {
+        images.add(Image.memory(Uint8List.fromList(imageData)));
+      });
+      print('Number of images: ${images.length}');
     } catch (e) {
-      print('Error parsing response: $e');
-      return [];
+      print('Error decoding image: $e');
     }
   }
 
@@ -199,20 +211,36 @@ class _SessionMemberState extends State<SessionMember> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          'You can study now',
+          style: TextStyle(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: const Color(0xFFDDEBDD),
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Text(
-              'Timer',
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+            Container(
+              width: 100,
+              height: 25,
+              decoration: BoxDecoration(
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(5.0),
+                color: Colors.white,
+              ),
+              child: Center(
+                child: Text(
+                  '${widget.sessionData['subject']}',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
+            SizedBox(height: 120),
             Container(
               width: 177,
               height: 177,
@@ -231,23 +259,7 @@ class _SessionMemberState extends State<SessionMember> {
                 ),
               ),
             ),
-            SizedBox(height: 15),
-            Container(
-              width: 100,
-              height: 25,
-              decoration: BoxDecoration(
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(5.0),
-                color: Colors.white,
-              ),
-              child: Center(
-                child: Text(
-                  '${widget.sessionData['subject']}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            SizedBox(height: 100),
+            SizedBox(height: 200),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -286,6 +298,7 @@ class _SessionMemberState extends State<SessionMember> {
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
+                    leaveSession(UserManager.loggedInUserId!, widget.sessionID);
                     Navigator.push(
                         context,
                         // ?? 0 set the userID = 0 if the UserManager.loggedInUserId is null

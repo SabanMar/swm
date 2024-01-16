@@ -65,14 +65,12 @@ class _EditPhotoProfilePageState extends State<EditPhotoProfilePage> {
         },
       );
       if (response.statusCode == 200) {
-        // Handle success, for example, show a message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Photo profile selected successfully'),
           ),
         );
       } else {
-        // Handle failure, for example, show an error message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to select photo profile'),
@@ -127,7 +125,7 @@ class _EditPhotoProfilePageState extends State<EditPhotoProfilePage> {
                             });
                             selectAvatar();
                           },
-                          child: Text('Select'),
+                          child: const Text('Select'),
                         )
                       ],
                     ),

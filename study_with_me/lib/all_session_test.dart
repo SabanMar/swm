@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
-import 'package:study_with_me/session_details_memder.dart';
+import 'package:study_with_me/session_details_member.dart';
 
 class AllSessionsTest extends StatefulWidget {
   final String subject;
@@ -27,6 +27,7 @@ class AllSessionsTest extends StatefulWidget {
 
 class _AllSessionsTestState extends State<AllSessionsTest> {
   List<Map<String, dynamic>> sessions = [];
+  List<String> avatarImages = [];
    @override
   void initState() {
     super.initState();
@@ -72,6 +73,26 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
     }
   }
 
+    List<String> avatarList() {
+    List<String> images = [];
+    for (int i = 1; i <= 40; i++) {
+      String imagePath = 'assets/images/avatars/Frame 1 ($i).png';
+      images.add(imagePath);
+    }
+    images.add('assets/images/avatars/Frame 1.png');
+    return images;
+  }
+
+  String getSelectedAvatar(Map<String, dynamic> sessionData) {
+    String? hostAvatar =
+        sessionData['host_avatar']; // the file name in database
+    for (String avatarImage in avatarImages) {
+      if (hostAvatar != '1' && avatarImage.contains(hostAvatar!)) {
+        return avatarImage; // Return the matched avatar
+      }
+    }
+    return 'assets/images/avatars/Frame 1.png'; // Default avatar
+  }
 
 
   @override
@@ -108,22 +129,19 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
-                            height: 50,
-                            width: 50,
-                            decoration: BoxDecoration(
-                                color: Colors.green, shape: BoxShape.circle),
-                          ),
+                          CircleAvatar(
+                        backgroundImage:
+                            AssetImage(getSelectedAvatar(sessions[i])),
+                        radius: 25,
+                      ),
                           Column(
                             children: [
-                              Text("Host ID:" +
-                                  sessions[i]['host_id'].toString()),
                               Text("Location:" + sessions[i]['location']),
                               Text("Subject:" + sessions[i]['subject']),
                             ],
                           ),
                           Icon(
-                            Icons.menu_book_sharp,
+                            Icons.menu_book,
                             size: 50,
                           )
                         ],

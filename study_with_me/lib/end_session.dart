@@ -1,16 +1,15 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:study_with_me/homepage.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 
+
 class EndSession extends StatefulWidget {
   final int sessionID;
+  final Map<String, dynamic> sessionData;
   final int elapsedTime;
   final int buttonPressCount;
-
-  final Map<String, dynamic> sessionData;
 
   const EndSession({
     Key? key,
@@ -25,6 +24,8 @@ class EndSession extends StatefulWidget {
 }
 
 class _EndSessionState extends State<EndSession> {
+  late Map<String, dynamic> _updatedSessionData;
+
   String formatTime(int seconds) {
     int minutes = seconds ~/ 60;
     int remainingSeconds = seconds % 60;
@@ -56,10 +57,39 @@ class _EndSessionState extends State<EndSession> {
       throw error;
     }
   }
+  Future<Map<String, dynamic>> fetchSessionData() async {
+    final url = Uri.parse(
+        '${config.localhost}/get_session_details?session_id=${widget.sessionID}');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to fetch session data');
+      }
+    } catch (error) {
+      // Handle errors here
+      print('Error: $error');
+      throw error;
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    // Call fetchSessionData to get the updated session data
+    fetchSessionData().then((data) {
+      setState(() {
+        _updatedSessionData = data;
+      });
+    });
   }
 
   @override
@@ -111,7 +141,7 @@ class _EndSessionState extends State<EndSession> {
                       }
                     },
                   ),
-                  Text('You earned ${widget.sessionData['coins']} coins'),
+                  Text('You earned ${_updatedSessionData['coins']} coins'),
                 ],
               ))),
           SizedBox(height: 200),

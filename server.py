@@ -279,8 +279,8 @@ def get_session_details():
 def join_session():
     if request.method == 'POST':
         data = request.get_json()
-        session_id = data.get('session_id')
-        member_id = data.get('member_id')  # Assuming the ID of the user joining
+        session_id = int(data.get('session_id'))
+        member_id = int(data.get('member_id') ) # Assuming the ID of the user joining
 
         conn = pymysql.connect(**config1)
 
@@ -718,14 +718,15 @@ def add_coins():
     with conn.cursor() as cursor:
         cursor.execute(query1,(session_id,))
         session = cursor.fetchone()
+        
         if session:
             cursor.execute(query2,(coins,session_id))
             conn.commit()
             cursor.execute(query3,(coins,session['host_id']))
+            conn.commit()
 
             for i in range(1,session['current_members']+1):
-                query4 = "UPDATE users SET coins = coins + %s WHERE id = %s"
-                cursor.execute(query4,(coins,session[f'member{i}_id']))
+                cursor.execute(query3,(coins,session[f'member{i}_id']))
                 conn.commit()
 
             return jsonify(session), 200

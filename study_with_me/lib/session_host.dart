@@ -40,6 +40,30 @@ class _SessionHostState extends State<SessionHost> {
     startTimer();
   }
 
+  Future<Map<String, dynamic>> fetchSessionData() async {
+    final url = Uri.parse(
+        '${config.localhost}/get_session_details?session_id=${widget.sessionID}');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        throw Exception('Failed to fetch session data');
+      }
+    } catch (error) {
+      // Handle errors here
+      print('Error: $error');
+      throw error;
+    }
+  }
+
   void startTimer() {
     const oneSec = const Duration(seconds: 1);
     _timer = Timer.periodic(oneSec, (Timer timer) {
@@ -319,13 +343,30 @@ class _SessionHostState extends State<SessionHost> {
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () async {
+                    _currentElapsedTime = _elapsedSeconds;
+                    _total = _buttonPressedCount;
                     try {
-                      await addCoins(widget.sessionID, 10);
+                      if (_currentElapsedTime < 1200){
+                        await addCoins(widget.sessionID, 0);
+                      }
+                      else if (_currentElapsedTime >= 1200 && _currentElapsedTime < 1800) {
+                      await addCoins(widget.sessionID, 5);
+                      }
+                      else if (_currentElapsedTime < 7200 && _currentElapsedTime >= 1800){
+                        await addCoins(widget.sessionID, 15);
+                      }
+                      else if (_currentElapsedTime < 10800 && _currentElapsedTime >= 7200){
+                        await addCoins(widget.sessionID, 25);
+                      }
+                      else if (_currentElapsedTime >= 10800) {
+                        await addCoins(widget.sessionID, 25);
+                      }
+                      
                     } catch (error) {
                       print("Error: $error");
                     }
-                    _currentElapsedTime = _elapsedSeconds;
-                    _total = _buttonPressedCount;
+                    print(widget.sessionData);
+
                     Navigator.push(
                         context,
                         MaterialPageRoute(

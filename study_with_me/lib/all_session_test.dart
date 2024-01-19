@@ -27,9 +27,11 @@ class AllSessionsTest extends StatefulWidget {
 class _AllSessionsTestState extends State<AllSessionsTest> {
   List<Map<String, dynamic>> sessions = [];
   List<String> avatarImages = [];
+  Map<String, dynamic> hostData = {};
   @override
   void initState() {
     super.initState();
+    avatarImages = avatarList();
     fetchAllSessions(
       widget.subject,
       widget.location,
@@ -86,9 +88,8 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-
     if (response.statusCode == 200) {
-      final hostData = jsonDecode(response.body);
+      hostData = jsonDecode(response.body);
 
       // Check if the sessionIndex is within the bounds of the sessions list
       if (sessionIndex >= 0 && sessionIndex < sessions.length) {
@@ -120,10 +121,10 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
     return images;
   }
 
-  String getSelectedAvatar(Map<String, dynamic> userData) {
-    String? userAvatar = userData['avatar']; // the file name in database
+  String getSelectedAvatar(Map<String, dynamic> sessionData) {
+    String? hostAvatar = sessionData['host_avatar']; // the file name in database
     for (String avatarImage in avatarImages) {
-      if (userAvatar != null && avatarImage.contains(userAvatar)) {
+      if (hostAvatar != null && avatarImage.contains(hostAvatar)) {
         return avatarImage; // Return the matched avatar
       }
     }
@@ -132,6 +133,7 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
 
   @override
   Widget build(BuildContext context) {
+  
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFFDDEBDD),
@@ -188,7 +190,7 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
                             ],
                           ),
                           Icon(
-                            Icons.menu_book_sharp,
+                            Icons.menu_book_rounded,
                             size: 50,
                           )
                         ],

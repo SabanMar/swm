@@ -29,6 +29,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
   @override
   void initState() {
     super.initState();
+    avatarImages = avatarList();
     _sessionDataFuture = fetchSessionData();
     _checkPermissions();
     // Set up a periodic timer to refresh the session data every 10 seconds

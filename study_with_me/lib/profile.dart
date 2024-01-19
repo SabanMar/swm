@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:study_with_me/available_avatars.dart';
 import 'package:study_with_me/config.dart';
@@ -10,6 +11,7 @@ import 'package:study_with_me/homepage.dart';
 import 'get_started.dart';
 import 'usermanager.dart';
 import 'change_password.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Profile extends StatefulWidget {
   final int userID;
@@ -83,6 +85,48 @@ class _ProfileState extends State<Profile> {
       }
     }
     return 'assets/images/avatars/Frame 1.png'; // Default avatar
+  }
+
+  String generateToken() {
+    final random = Random.secure();
+    final tokenBytes = List.generate(32, (index) => random.nextInt(256));
+    return base64Url.encode(tokenBytes);
+  }
+
+  String handlePasswordResetRequest(String email) {
+    final token = generateToken();
+    final resetLink = 'https://example.com/reset?token=$token';
+    return resetLink;
+  }
+
+  Future<void> sendResetEmail(String email) async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: email,
+      queryParameters: {
+        'subject': 'Password Request Reset',
+        'body':
+            'Please click the following link to reset your password: ${handlePasswordResetRequest(email)}'
+      },
+    );
+    try {
+      await launch(emailLaunchUri.toString());
+    } catch (e) {
+      print('Error launching email: $e');
+    }
+  }
+
+  void forgotPassword(userData) {
+    // Ensure userData is not null and contains the 'email' key
+    if (userData.containsKey('email')) {
+      String userEmail = userData['email'];
+
+      // Open the user's email app with a pre-filled email for password reset
+      sendResetEmail(userEmail);
+    } else {
+      // Handle the case where userData is null or missing the 'email' key
+      print('Invalid userData for password reset');
+    }
   }
 
   @override
@@ -230,13 +274,11 @@ class _ProfileState extends State<Profile> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => EditPhotoProfilePage()));
+                      } else if (value == 'Forgot Password') {
+                        forgotPassword(userData);
                       }
                     },
                     itemBuilder: (BuildContext context) => [
-                      PopupMenuItem<String>(
-                        value: 'Privacy-Policy',
-                        child: Text('Privacy-Policy'),
-                      ),
                       PopupMenuItem<String>(
                         value: 'Change Password',
                         child: Text('Change Password'),
@@ -268,7 +310,8 @@ class _ProfileState extends State<Profile> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => HistoryPage(
-                                      userId: UserManager.loggedInUserId.toString())),
+                                      userId: UserManager.loggedInUserId
+                                          .toString())),
                             );
                           },
                         ),

@@ -25,6 +25,8 @@ dependencies:
   image_picker: ^1.0.7
   photo_view: ^0.14.0
   maps_launcher: ^2.2.0
+  just_audio: ^0.9.36
+  audioplayers: ^5.2.1
 
 
 dev_dependencies:
@@ -46,3 +48,5 @@ flutter:
   - assets/images/image1.png
   - assets/joyous_chime_notification.mp3
   - assets/images/search.png
+  - assets/images/start.png
+  - assets/images/archive.png

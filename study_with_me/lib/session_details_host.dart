@@ -9,11 +9,13 @@ import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 import 'usermanager.dart';
 import 'package:intl/intl.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class SessionDetailsHost extends StatefulWidget {
   final int sessionID;
+  final player = AudioPlayer();
 
-  const SessionDetailsHost({Key? key, required this.sessionID})
+  SessionDetailsHost({Key? key, required this.sessionID})
       : super(key: key);
 
   @override
@@ -131,6 +133,8 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
     return 'assets/images/avatars/Frame 1.png'; // Default avatar
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     String formattedDate = '';
@@ -211,11 +215,8 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                             Text("End time:")
                           ],
                         ),
-                        SizedBox(
-                          width: 90,
-                        ),
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Row(
                               children: [
@@ -226,8 +227,8 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                                     children: [
                                       Icon(Icons.location_on), // Add the location icon here
                                       SizedBox(width: 5), // Add some spacing between the icon and the text
-                                      Text(sessionData['location']),
-                                      
+                                      Text(sessionData['location'],
+                                      softWrap: true),
                                     ],
                                   ),
                                 ),
@@ -296,7 +297,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                     height: 10,
                   ),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -306,6 +307,7 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                           ),
                         ),
                       );
+                      await widget.player.play(AssetSource('joyous_chime_notification.mp3'));
                     },
                     child: Text(
                       "Start",

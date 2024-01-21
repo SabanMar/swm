@@ -61,7 +61,7 @@ class _HistoryPageState extends State<HistoryPage> {
     return minutes;
   }
 
-    Future<void> getImages(int sessionID) async {
+  Future<void> getImages(int sessionID) async {
     try {
       final response = await http.get(
         Uri.parse('${config.localhost}/get_image?session_id=$sessionID'),
@@ -84,7 +84,7 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
-    void displayImage(String imageBase64) {
+  void displayImage(String imageBase64) {
     try {
       List<int> imageData = base64Decode(imageBase64);
       print('Image data length: ${imageData.length}');
@@ -97,207 +97,218 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Color(0xFF618264),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFDDEBDD),
-        ),
-        body: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "ARCHIVE",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25),
-                  ),
-                  Icon(
-                    Icons.bookmark,
-                    color: Colors.white,
-                  )
-                ],
-              ),
-              for (int i = 0; i < sessionsHistory.length; i++)
-                GestureDetector(
-                  onTap: () async {
-                    // Call the function to get images
-                    await getImages(sessionsHistory[i]['id']);
-                    // Navigate to ImageDisplayPage with the list of images
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) {
-                          // Clear the images list
-                          List<Image> clearedImages = List.from(images);
-                          images.clear();
-                          return ImageDisplayPage(images: clearedImages);
-                        },
-                      ),
-                    );
-                  },
-                  child: Container(
-                      //padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20),
-                            bottomRight: Radius.circular(20),
-                            topLeft: Radius.circular(8),
-                            topRight: Radius.circular(8)),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Text(
-                                "Session #" + (i + 1).toString(),
-                                style: TextStyle(
-                                    color:
-                                        const Color.fromARGB(255, 68, 102, 70),
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                sessionsHistory[i]['subject'],
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                width: 50,
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    sessionsHistory[i]['coins'].toString(),
-                                    style: TextStyle(
-                                        color: Colors.yellow,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  Image.asset(
-                                    'assets/images/coin.png',
-                                    height: 15,
-                                  )
-                                ],
-                              ),
-                            ],
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFDDEBDD),
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(20),
-                              ),
-                            ),
-                            child: Row(
+    return GestureDetector(
+      onScaleUpdate: (ScaleUpdateDetails details) {
+        // Check if two fingers are moving from left to right
+        if (details.scale == 1 && details.rotation == 0) {
+          if (details.horizontalScale > 1.0) {
+            // Two fingers moving from left to right
+            Navigator.pop(context);
+          }
+        }
+      },
+      child: Scaffold(
+          backgroundColor: Color(0xFF618264),
+          appBar: AppBar(
+            backgroundColor: const Color(0xFFDDEBDD),
+          ),
+          body: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "ARCHIVE",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25),
+                    ),
+                    Icon(
+                      Icons.bookmark,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+                for (int i = 0; i < sessionsHistory.length; i++)
+                  GestureDetector(
+                    onTap: () async {
+                      // Call the function to get images
+                      await getImages(sessionsHistory[i]['id']);
+                      // Navigate to ImageDisplayPage with the list of images
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            // Clear the images list
+                            List<Image> clearedImages = List.from(images);
+                            images.clear();
+                            return ImageDisplayPage(images: clearedImages);
+                          },
+                        ),
+                      );
+                    },
+                    child: Container(
+                        //padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(20),
+                              bottomRight: Radius.circular(20),
+                              topLeft: Radius.circular(8),
+                              topRight: Radius.circular(8)),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(6)),
+                                Text(
+                                  "Session #" + (i + 1).toString(),
+                                  style: TextStyle(
+                                      color: const Color.fromARGB(
+                                          255, 68, 102, 70),
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  sessionsHistory[i]['subject'],
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
                                 ),
                                 SizedBox(
-                                  width: 5,
+                                  width: 50,
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                Row(
                                   children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.watch_later_rounded,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 3,
-                                        ),
-                                        Text(
-                                          DateFormat.Hm().format(
-                                                  parseDateString(
-                                                      sessionsHistory[i]
-                                                          ['start_time'])) +
-                                              "-" +
-                                              DateFormat.Hm().format(
-                                                  parseDateString(
-                                                      sessionsHistory[i]
-                                                          ['end_time'])),
-                                          style: TextStyle(
-                                              color: const Color(0xFF618264),
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
+                                    Text(
+                                      sessionsHistory[i]['coins'].toString(),
+                                      style: TextStyle(
+                                          color: Colors.yellow,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.collections_bookmark_rounded,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 3,
-                                        ),
-                                        Text(
-                                          calculateSessionDuration(
-                                                      sessionsHistory[i]
-                                                          ['start_time'],
-                                                      sessionsHistory[i]
-                                                          ['end_time'])
-                                                  .toString() +
-                                              "'",
-                                          style: TextStyle(
-                                              color: const Color(0xFF618264),
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.library_books,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                        SizedBox(
-                                          width: 3,
-                                        ),
-                                        Text(
-                                          sessionsHistory[i]['image_count']
-                                                  .toString() +
-                                              " docs",
-                                          style: TextStyle(
-                                              color: const Color(0xFF618264),
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
+                                    Image.asset(
+                                      'assets/images/coin.png',
+                                      height: 15,
+                                    )
                                   ],
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      )),
-                ),
-            ],
-          ),
-        ));
+                            Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Color(0xFFDDEBDD),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(20),
+                                  bottomRight: Radius.circular(20),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    child: Image(
+                                      image:
+                                          AssetImage('assets/images/archive.png'),
+                                      width: 40.0, // Set width
+                                      height: 40.0, // Set height
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 15,
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.watch_later_rounded,
+                                            color: const Color(0xFF618264),
+                                            size: 20,
+                                          ),
+                                          SizedBox(
+                                            width: 3,
+                                          ),
+                                          Text(
+                                            DateFormat.Hm().format(
+                                                    parseDateString(
+                                                        sessionsHistory[i]
+                                                            ['start_time'])) +
+                                                "-" +
+                                                DateFormat.Hm().format(
+                                                    parseDateString(
+                                                        sessionsHistory[i]
+                                                            ['end_time'])),
+                                            style: TextStyle(
+                                                color: const Color(0xFF618264),
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.collections_bookmark_rounded,
+                                            color: const Color(0xFF618264),
+                                            size: 20,
+                                          ),
+                                          SizedBox(
+                                            width: 3,
+                                          ),
+                                          Text(
+                                            calculateSessionDuration(
+                                                        sessionsHistory[i]
+                                                            ['start_time'],
+                                                        sessionsHistory[i]
+                                                            ['end_time'])
+                                                    .toString() +
+                                                "'",
+                                            style: TextStyle(
+                                                color: const Color(0xFF618264),
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.library_books,
+                                            color: const Color(0xFF618264),
+                                            size: 20,
+                                          ),
+                                          SizedBox(
+                                            width: 3,
+                                          ),
+                                          Text(
+                                            sessionsHistory[i]['image_count']
+                                                    .toString() +
+                                                " docs",
+                                            style: TextStyle(
+                                                color: const Color(0xFF618264),
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        )),
+                  ),
+              ],
+            ),
+          )),
+    );
   }
 }

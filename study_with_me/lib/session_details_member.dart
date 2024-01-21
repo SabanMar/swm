@@ -229,8 +229,8 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                               borderRadius: BorderRadius.circular(5),
                               color: Color.fromARGB(255, 255, 255, 255),
                             ),
-                            child: Text(" "+
-                              sessionData['host_username']+" ",
+                            child: Text(
+                              " " + sessionData['host_username'] + " ",
                               style: TextStyle(
                                   color: Colors.black,
                                   fontSize: 20,
@@ -239,7 +239,6 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                           ),
                         ],
                       ),
-                      
                       SizedBox(
                         width: 5,
                       ),
@@ -273,23 +272,23 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                             Text("End time:")
                           ],
                         ),
-                        SizedBox(
-                          width: 90,
-                        ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                           Row(
+                            Row(
                               children: [
                                 GestureDetector(
                                   onTap: () => (MapsLauncher.launchQuery(
                                       sessionData['location'])),
                                   child: Row(
                                     children: [
-                                      Icon(Icons.location_on), // Add the location icon here
-                                      SizedBox(width: 5), // Add some spacing between the icon and the text
-                                      Text(sessionData['location']),
-                                      
+                                      Icon(Icons
+                                          .location_on), // Add the location icon here
+                                      SizedBox(
+                                          width:
+                                              5), // Add some spacing between the icon and the text
+                                      Text(sessionData['location'],
+                                      softWrap: true),
                                     ],
                                   ),
                                 ),
@@ -382,15 +381,25 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SessionMember(
-                                sessionID: widget.sessionID,
-                                sessionData: sessionData,
+                          if (sessionData['has_started'] == 1) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SessionMember(
+                                  sessionID: widget.sessionID,
+                                  sessionData: sessionData,
+                                ),
                               ),
-                            ),
-                          );
+                            );
+                          } else {
+                            // Handle the case when the session has not started
+                            // You can show a message or perform any other action
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Session has not started yet!'),
+                              ),
+                            );
+                          }
                         },
                         child: const Text(
                           'Go to session!',

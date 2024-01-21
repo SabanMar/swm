@@ -122,7 +122,8 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
   }
 
   String getSelectedAvatar(Map<String, dynamic> sessionData) {
-    String? hostAvatar = sessionData['host_avatar']; // the file name in database
+    String? hostAvatar =
+        sessionData['host_avatar']; // the file name in database
     for (String avatarImage in avatarImages) {
       if (hostAvatar != null && avatarImage.contains(hostAvatar)) {
         return avatarImage; // Return the matched avatar
@@ -133,118 +134,130 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
 
   @override
   Widget build(BuildContext context) {
-  
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFDDEBDD),
-        ),
-        body: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              for (int i = 0; i < sessions.length; i++)
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SessionDetailsUser(
-                          sessionID: sessions[i]['id'],
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                      padding: EdgeInsets.all(10),
-                      margin: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CircleAvatar(
-                            backgroundImage:
-                                AssetImage(getSelectedAvatar(sessions[i])),
-                            radius: 35,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.schedule,
-                                    size:
-                                        18.0, // Set the desired size of the icon
-                                  ),
-                                  Text("   " +
-                                      DateFormat.yMMMd().format(parseDateString(
-                                          sessions[i]['start_time'])) +
-                                      " " +
-                                      DateFormat.Hm().format(parseDateString(
-                                          sessions[i]['start_time']))),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.face,
-                                    size:
-                                        18.0, // Set the desired size of the icon
-                                  ),
-                                  Text("   " +
-                                      sessions[i]['host_username'].toString()),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    size:
-                                        18.0, // Set the desired size of the icon
-                                  ),
-                                  Text("   " + sessions[i]['location']),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.book,
-                                    size:
-                                        18.0, // Set the desired size of the icon
-                                  ),
-                                  Text("   " + sessions[i]['subject']),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.groups,
-                                    size:
-                                        18.0, // Set the desired size of the icon
-                                  ),
-                                  Text("   " +
-                                      sessions[i]['current_members'].toString() +
-                                      "/" +
-                                      sessions[i]['max_members'].toString()),
-                                ],
-                              )
-                            ],
-                          ),
-                          Image(
-                            image: AssetImage('assets/images/book.png'),
-                            width: 40.0, // Set width
-                            height: 40.0, // Set height
-                          ),
-                        ],
-                      )),
-                ),
-            ],
+    
+    return GestureDetector(
+      onScaleUpdate: (ScaleUpdateDetails details) {
+        // Check if two fingers are moving from left to right
+        if (details.scale == 1 && details.rotation == 0) {
+          if (details.horizontalScale > 1.0) {
+            // Two fingers moving from left to right
+            Navigator.pop(context);
+          }
+        }
+      },
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: const Color(0xFFDDEBDD),
           ),
-        ));
+          body: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (int i = 0; i < sessions.length; i++)
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SessionDetailsUser(
+                            sessionID: sessions[i]['id'],
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CircleAvatar(
+                              backgroundImage:
+                                  AssetImage(getSelectedAvatar(sessions[i])),
+                              radius: 35,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.schedule,
+                                      size:
+                                          18.0, // Set the desired size of the icon
+                                    ),
+                                    Text("   " +
+                                        DateFormat.yMMMd().format(parseDateString(
+                                            sessions[i]['start_time'])) +
+                                        " " +
+                                        DateFormat.Hm().format(parseDateString(
+                                            sessions[i]['start_time']))),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.face,
+                                      size:
+                                          18.0, // Set the desired size of the icon
+                                    ),
+                                    Text("   " +
+                                        sessions[i]['host_username'].toString()),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
+                                      size:
+                                          18.0, // Set the desired size of the icon
+                                    ),
+                                    Text("   " + sessions[i]['location']),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.book,
+                                      size:
+                                          18.0, // Set the desired size of the icon
+                                    ),
+                                    Text("   " + sessions[i]['subject']),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.groups,
+                                      size:
+                                          18.0, // Set the desired size of the icon
+                                    ),
+                                    Text("   " +
+                                        sessions[i]['current_members']
+                                            .toString() +
+                                        "/" +
+                                        sessions[i]['max_members'].toString()),
+                                  ],
+                                )
+                              ],
+                            ),
+                            Image(
+                              image: AssetImage('assets/images/book.png'),
+                              width: 40.0, // Set width
+                              height: 40.0, // Set height
+                            ),
+                          ],
+                        )),
+                  ),
+              ],
+            ),
+          )),
+    );
   }
 }

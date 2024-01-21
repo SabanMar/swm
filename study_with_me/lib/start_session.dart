@@ -131,143 +131,167 @@ class _StartSessionState extends State<StartSession> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFDDEBDD),
-      ),
-      body: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Create your own session!'),
-                SizedBox(height: 30),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Set your desired color
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Set your desired border radius
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    value: selectedSubject,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedSubject = newValue;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Subject',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: subjects.map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Set your desired color
-                    borderRadius: BorderRadius.circular(
-                        6.0), // Set your desired border radius
-                  ),
-                  child: TextFormField(
-                    controller: locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Location',
+    return GestureDetector(
+      onScaleUpdate: (ScaleUpdateDetails details) {
+        // Check if two fingers are moving from left to right
+        if (details.scale == 1 && details.rotation == 0) {
+          if (details.horizontalScale > 1.0) {
+            // Two fingers moving from left to right
+            Navigator.pop(context);
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFDDEBDD),
+        ),
+        body: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Text('Create your own session!'),
+                      SizedBox(width: 50),
+                       Hero(
+                    tag: 'StartImage',
+                    child: Image.asset(
+                      'assets/images/start.png',
+                      width: 100,
+                      height: 100,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white, // Set your desired color
-                    borderRadius: BorderRadius.circular(
-                        6.0), // Set your desired border radius
+                    ],
                   ),
-                  child: TextFormField(
-                    controller: maxMembersController,
-                    decoration: const InputDecoration(
-                      labelText: 'Members(1-5)',
+                  SizedBox(height: 30),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Set your desired color
+                      borderRadius: BorderRadius.circular(
+                          8.0), // Set your desired border radius
                     ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _selectDateTime(true); // Open start date time picker
+                    child: DropdownButtonFormField<String>(
+                      value: selectedSubject,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedSubject = newValue;
+                        });
                       },
-                      child: Text(
-                        selectedStartTime != null
-                            ? 'Start Time: ${selectedStartTime!.toLocal()}'
-                            : 'Select Start Time',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
+                      decoration: InputDecoration(
+                        labelText: 'Subject',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: subjects.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Set your desired color
+                      borderRadius: BorderRadius.circular(
+                          6.0), // Set your desired border radius
+                    ),
+                    child: TextFormField(
+                      controller: locationController,
+                      decoration: const InputDecoration(
+                        labelText: 'Location',
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        _selectDateTime(false); // Open end date time picker
-                      },
-                      child: Text(
-                        selectedEndTime != null
-                            ? 'End Time: ${selectedEndTime!.toLocal()}'
-                            : 'Select End Time',
-                        style:
-                            TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white, // Set your desired color
+                      borderRadius: BorderRadius.circular(
+                          6.0), // Set your desired border radius
+                    ),
+                    child: TextFormField(
+                      controller: maxMembersController,
+                      decoration: const InputDecoration(
+                        labelText: 'Members(1-5)',
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 75,
-            right: 75,
-            child: ElevatedButton(
-              onPressed: () {
-                if (selectedStartTime != null &&
-                    selectedEndTime != null &&
-                    selectedSubject != null) {
-                  String subject = selectedSubject ?? '';
-                  String location = locationController.text;
-                  String maxMembers = maxMembersController.text;
-
-                  // Call createSession with all the extracted values
-                  createSession(context, subject, location, selectedStartTime!,
-                      selectedEndTime!, maxMembers);
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please select start and end times'),
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 168, 159, 226),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                padding: EdgeInsets.symmetric( vertical: 10.0),
-              ),
-               child: Icon(
-                Icons.check_rounded,
-                color: Colors.white,
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _selectDateTime(true); // Open start date time picker
+                        },
+                        child: Text(
+                          selectedStartTime != null
+                              ? 'Start Time: ${selectedStartTime!.toLocal()}'
+                              : 'Select Start Time',
+                          style:
+                              TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _selectDateTime(false); // Open end date time picker
+                        },
+                        child: Text(
+                          selectedEndTime != null
+                              ? 'End Time: ${selectedEndTime!.toLocal()}'
+                              : 'Select End Time',
+                          style:
+                              TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 75,
+              right: 75,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (selectedStartTime != null &&
+                      selectedEndTime != null &&
+                      selectedSubject != null) {
+                    String subject = selectedSubject ?? '';
+                    String location = locationController.text;
+                    String maxMembers = maxMembersController.text;
+      
+                    // Call createSession with all the extracted values
+                    createSession(context, subject, location, selectedStartTime!,
+                        selectedEndTime!, maxMembers);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please select start and end times'),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 168, 159, 226),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  padding: EdgeInsets.symmetric( vertical: 10.0),
+                ),
+                 child: Icon(
+                  Icons.check_rounded,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

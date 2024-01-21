@@ -385,7 +385,7 @@ def get_all_sessions():
 
         conn = pymysql.connect(**config1)
         query_session_data = "SELECT * FROM sessions WHERE start_time >= %s"
-        parameters = [current_time]
+        parameters = [current_time.strftime("%Y-%m-%d %H:%M:%S")]
 
         if subject != 'Everything':
             query_session_data += " AND subject = %s"
@@ -396,17 +396,16 @@ def get_all_sessions():
 
         if start_time_str:
             start_time = datetime.strptime(start_time_str, "%Y-%m-%dT%H:%M:%S.%f")
-            if start_time >= current_time:
-                query_session_data += " AND start_time = %s AND start_time >= %s"
-                parameters.append(start_time, current_time)
+            query_session_data += " AND start_time > %s"
+            parameters.append(current_time.strftime("%Y-%m-%d %H:%M:%S"))
         if end_time_str:
             end_time = datetime.strptime(end_time_str, "%Y-%m-%dT%H:%M:%S.%f")
             if end_time >= current_time:
                 query_session_data += " AND end_time = %s"
-                parameters.append(end_time)
+                parameters.append(end_time.strftime("%Y-%m-%d %H:%M:%S"))
 
         with conn.cursor() as cursor:
-            cursor.execute(query_session_data, tuple(parameters))
+            cursor.execute(query_session_data, parameters)
             session_data = cursor.fetchall()
 
             if session_data:
@@ -733,6 +732,21 @@ def add_coins():
         
         return jsonify({"message: Session not found"}), 401
 
+@app.route('/session_started', methods = ['POST'])
+def session_started():
+    session_id = int(request.args.get('session_id'))
+    conn = pymysql.connect(**config1)
+    query = "UPDATE sessions SET has_started = 1 WHERE id = %s AND has_started = 0"
+
+    with conn.cursor() as cursor:
+        cursor.execute(query, (session_id,))
+        conn.commit()
+
+        
+        return jsonify({"message": "Session just started"}), 200
+    
+    return jsonify({"message": "Session already started"}), 201
+        
 
 if __name__ == "__main__":
     app.run(debug=True)

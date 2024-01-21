@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:study_with_me/session_host.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -216,7 +217,22 @@ class _SessionDetailsHostState extends State<SessionDetailsHost> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(sessionData['location']),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => (MapsLauncher.launchQuery(
+                                      sessionData['location'])),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.location_on), // Add the location icon here
+                                      SizedBox(width: 5), // Add some spacing between the icon and the text
+                                      Text(sessionData['location']),
+                                      
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                             Text(sessionData['subject']),
                             Text(formattedDate),
                             Text(formattedStartTime),

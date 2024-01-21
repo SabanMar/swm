@@ -4,7 +4,6 @@ import 'package:study_with_me/homepage.dart';
 import 'package:study_with_me/config.dart';
 import 'package:http/http.dart' as http;
 
-
 class EndSession extends StatefulWidget {
   final int sessionID;
   final Map<String, dynamic> sessionData;
@@ -57,6 +56,7 @@ class _EndSessionState extends State<EndSession> {
       throw error;
     }
   }
+
   Future<Map<String, dynamic>> fetchSessionData() async {
     final url = Uri.parse(
         '${config.localhost}/get_session_details?session_id=${widget.sessionID}');
@@ -102,13 +102,35 @@ class _EndSessionState extends State<EndSession> {
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Congratulations',
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Transform(
+                transform: Matrix4.identity()
+                  ..scale(-1.0, 1.0, 1.0), // Mirroring horizontally
+                alignment: Alignment.center,
+                child: Image.asset(
+                  'assets/images/image1.png', // Replace this with the path to your image asset
+                  width: 40,
+                  height: 40,
+                ),
+              ),
+              SizedBox(width: 15),
+              const Text(
+                'Congratulations',
+                style: TextStyle(
+                  fontSize: 30,
+                  color: Color.fromARGB(255, 146, 104, 158),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 15),
+              Image.asset(
+                'assets/images/image1.png', // Replace this with the path to your image asset
+                width: 40, // Adjust the width as needed
+                height: 40, // Adjust the height as needed
+              ),
+            ],
           ),
           SizedBox(height: 15),
           Container(
@@ -145,22 +167,22 @@ class _EndSessionState extends State<EndSession> {
                 ],
               ))),
           SizedBox(height: 200),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(width: 20),
-              SizedBox(width: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      // ?? 0 set the userID = 0 if the UserManager.loggedInUserId is null
-                      MaterialPageRoute(builder: (context) => HomePage()));
-                },
-                child: const Text('Leave'),
-              ),
-            ],
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white, // Set your desired color
+              borderRadius:
+                  BorderRadius.circular(6.0), // Set your desired border radius
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.home),
+              iconSize: 30,
+              onPressed: () async {
+                Navigator.push(
+                    context,
+                    // ?? 0 set the userID = 0 if the UserManager.loggedInUserId is null
+                    MaterialPageRoute(builder: (context) => HomePage()));
+              },
+            ),
           ),
         ],
       )),

@@ -172,27 +172,74 @@ class _AllSessionsTestState extends State<AllSessionsTest> {
                             radius: 35,
                           ),
                           Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text("Date:" +
-                                  DateFormat.yMMMd().format(parseDateString(
-                                      sessions[i]['start_time'])) +
-                                  " " +
-                                  DateFormat.Hm().format(parseDateString(
-                                      sessions[i]['start_time']))),
-                              Text("Host username:" +
-                                  sessions[i]['host_username'].toString()),
-                              Text("Location:" + sessions[i]['location']),
-                              Text("Subject:" + sessions[i]['subject']),
-                              Text("Memebers: " +
-                                  sessions[i]['current_members'].toString() +
-                                  "/" +
-                                  sessions[i]['max_members'].toString())
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.schedule,
+                                    size:
+                                        18.0, // Set the desired size of the icon
+                                  ),
+                                  Text("   " +
+                                      DateFormat.yMMMd().format(parseDateString(
+                                          sessions[i]['start_time'])) +
+                                      " " +
+                                      DateFormat.Hm().format(parseDateString(
+                                          sessions[i]['start_time']))),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.face,
+                                    size:
+                                        18.0, // Set the desired size of the icon
+                                  ),
+                                  Text("   " +
+                                      sessions[i]['host_username'].toString()),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on,
+                                    size:
+                                        18.0, // Set the desired size of the icon
+                                  ),
+                                  Text("   " + sessions[i]['location']),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.book,
+                                    size:
+                                        18.0, // Set the desired size of the icon
+                                  ),
+                                  Text("   " + sessions[i]['subject']),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.groups,
+                                    size:
+                                        18.0, // Set the desired size of the icon
+                                  ),
+                                  Text("   " +
+                                      sessions[i]['current_members'].toString() +
+                                      "/" +
+                                      sessions[i]['max_members'].toString()),
+                                ],
+                              )
                             ],
                           ),
-                          Icon(
-                            Icons.menu_book_rounded,
-                            size: 50,
-                          )
+                          Image(
+                            image: AssetImage('assets/images/book.png'),
+                            width: 40.0, // Set width
+                            height: 40.0, // Set height
+                          ),
                         ],
                       )),
                 ),

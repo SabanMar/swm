@@ -65,8 +65,7 @@ class _StartSessionState extends State<StartSession> {
       DateTime endTime,
       String maxMembers) async {
     int? hostId = UserManager.loggedInUserId; // Get host ID from UserManager
-        // Use Google Geocoding API to get coordinates for the location
-
+    // Use Google Geocoding API to get coordinates for the location
 
     final Uri uri = Uri.parse('${config.localhost}/create_session');
 
@@ -143,35 +142,59 @@ class _StartSessionState extends State<StartSession> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                DropdownButtonFormField<String>(
-                  value: selectedSubject,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedSubject = newValue;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Subject',
-                    border: OutlineInputBorder(),
+                Text('Create your own session!'),
+                SizedBox(height: 30),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Set your desired color
+                    borderRadius: BorderRadius.circular(
+                        8.0), // Set your desired border radius
                   ),
-                  items: subjects.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedSubject,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedSubject = newValue;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Subject',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: subjects.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: locationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Location',
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Set your desired color
+                    borderRadius: BorderRadius.circular(
+                        6.0), // Set your desired border radius
+                  ),
+                  child: TextFormField(
+                    controller: locationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Location',
+                    ),
                   ),
                 ),
-                TextFormField(
-                  controller: maxMembersController,
-                  decoration: const InputDecoration(
-                    labelText: 'Members(1-5)',
+                const SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Set your desired color
+                    borderRadius: BorderRadius.circular(
+                        6.0), // Set your desired border radius
+                  ),
+                  child: TextFormField(
+                    controller: maxMembersController,
+                    decoration: const InputDecoration(
+                      labelText: 'Members(1-5)',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -186,6 +209,8 @@ class _StartSessionState extends State<StartSession> {
                         selectedStartTime != null
                             ? 'Start Time: ${selectedStartTime!.toLocal()}'
                             : 'Select Start Time',
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
                       ),
                     ),
                     ElevatedButton(
@@ -196,6 +221,8 @@ class _StartSessionState extends State<StartSession> {
                         selectedEndTime != null
                             ? 'End Time: ${selectedEndTime!.toLocal()}'
                             : 'Select End Time',
+                        style:
+                            TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
                       ),
                     ),
                   ],
@@ -209,7 +236,9 @@ class _StartSessionState extends State<StartSession> {
             right: 75,
             child: ElevatedButton(
               onPressed: () {
-                if (selectedStartTime != null && selectedEndTime != null && selectedSubject != null) {
+                if (selectedStartTime != null &&
+                    selectedEndTime != null &&
+                    selectedSubject != null) {
                   String subject = selectedSubject ?? '';
                   String location = locationController.text;
                   String maxMembers = maxMembersController.text;
@@ -226,10 +255,16 @@ class _StartSessionState extends State<StartSession> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              )),
-              child: const Icon(Icons.check),
+                backgroundColor: Color.fromARGB(255, 168, 159, 226),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                padding: EdgeInsets.symmetric( vertical: 10.0),
+              ),
+               child: Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+              ),
             ),
           ),
         ],

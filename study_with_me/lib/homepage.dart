@@ -28,7 +28,9 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   // ?? 0 set the userID = 0 if the UserManager.loggedInUserId is null
-                  MaterialPageRoute(builder: (context) => Profile(userID: UserManager.loggedInUserId ?? 0)),
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          Profile(userID: UserManager.loggedInUserId ?? 0)),
                 );
               },
             ),
@@ -49,20 +51,33 @@ class HomePage extends StatelessWidget {
                 );
               },
               child: Container(
+                width: 270,
+                height: 200,
                 margin: const EdgeInsets.only(left: 20, right: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: Center(
-                    heightFactor: 6,
-                    child: Text(
-                      'Join a Session',
-                      style: TextStyle(
-                          color: Colors.green.shade700,
-                          fontSize: 25,
-                          fontWeight: FontWeight.w600),
-                    )),
+                  heightFactor: 6,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Join',
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 51, 104, 54),
+                            fontSize: 30,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text('Session',
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 51, 104, 54),
+                              fontSize: 35,
+                              fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -76,6 +91,8 @@ class HomePage extends StatelessWidget {
                 );
               },
               child: Container(
+                width: 270,
+                height: 200,
                 margin: const EdgeInsets.only(left: 20, right: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -83,13 +100,22 @@ class HomePage extends StatelessWidget {
                 ),
                 child: Center(
                   heightFactor: 6,
-                  child: Text(
-                    'Start your own Session',
-                    style: TextStyle(
-                        color: Colors.green.shade700,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600),
-                    softWrap: true,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Start',
+                        style: TextStyle(
+                            color: const Color.fromARGB(255, 51, 104, 54),
+                            fontSize: 30,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      Text('Session',
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 51, 104, 54),
+                              fontSize: 35,
+                              fontWeight: FontWeight.w600)),
+                    ],
                   ),
                 ),
               ),

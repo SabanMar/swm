@@ -215,13 +215,31 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(
-                        "Your host",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold),
+                      Column(
+                        children: [
+                          Text(
+                            "Your host is",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Color.fromARGB(255, 255, 255, 255),
+                            ),
+                            child: Text(" "+
+                              sessionData['host_username']+" ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                       ),
+                      
                       SizedBox(
                         width: 5,
                       ),
@@ -261,7 +279,7 @@ class _SessionDetailsUserState extends State<SessionDetailsUser> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Row(
+                           Row(
                               children: [
                                 GestureDetector(
                                   onTap: () => (MapsLauncher.launchQuery(

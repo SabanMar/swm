@@ -42,5 +42,7 @@ flutter:
   - assets/images/avatars/
   - assets/images/coin.png
   - files/
-
-  
+  - assets/images/book.png
+  - assets/images/image1.png
+  - assets/joyous_chime_notification.mp3
+  - assets/images/search.png

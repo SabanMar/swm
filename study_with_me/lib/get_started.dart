@@ -38,6 +38,7 @@ class GetStarted extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
+              SizedBox(height: 100),
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -46,7 +47,7 @@ class GetStarted extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: const Color(0x00618264),
+                  primary: const Color(0xFF998CEB),
                 ),
                 
                 child: const Text(

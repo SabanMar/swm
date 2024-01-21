@@ -114,7 +114,8 @@ class _JoinSessionState extends State<JoinSession> {
     // Add more subjects as needed
   ];
 
-  String? selectedSubject = 'Everything';// Variable to store the selected subject
+  String? selectedSubject =
+      'Everything'; // Variable to store the selected subject
 
   @override
   Widget build(BuildContext context) {
@@ -129,56 +130,105 @@ class _JoinSessionState extends State<JoinSession> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                DropdownButtonFormField<String>(
-                  value: selectedSubject,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedSubject = newValue;
-                    });
+                Text(
+                  'Find your suited session!',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Set your desired color
+                    borderRadius: BorderRadius.circular(
+                        8.0), // Set your desired border radius
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedSubject,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedSubject = newValue;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Subject',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: subjects.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Set your desired color
+                    borderRadius: BorderRadius.circular(
+                        6.0), // Set your desired border radius
+                  ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Location',
+                      border: OutlineInputBorder(),
+                      labelStyle: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    _selectDateTime(true); // Open start date time picker
                   },
-                  decoration: InputDecoration(
-                    labelText: 'Subject',
-                    border: OutlineInputBorder(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shadowColor: Colors.grey,
+                    elevation: 2, // Adjust the elevation as needed
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          12.0), // Set your desired border radius
+                    ),
                   ),
-                  items: subjects.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: locationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Location',
+                  child: Text(
+                    selectedStartTime != null
+                        ? 'Start Time: ${selectedStartTime!.toLocal()}'
+                        : 'Select Start Time',
+                    style: TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _selectDateTime(true); // Open start date time picker
-                      },
-                      child: Text(
-                        selectedStartTime != null
-                            ? 'Start Time: ${selectedStartTime!.toLocal()}'
-                            : 'Select Start Time',
-                      ),
+                ElevatedButton(
+                  onPressed: () {
+                    _selectDateTime(false); // Open end date time picker
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+
+                    shadowColor: Colors.grey,
+                    elevation: 2, // Adjust the elevation as needed
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          12.0), // Set your desired border radius
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        _selectDateTime(false); // Open end date time picker
-                      },
-                      child: Text(
-                        selectedEndTime != null
-                            ? 'End Time: ${selectedEndTime!.toLocal()}'
-                            : 'Select End Time',
-                      ),
-                    ),
-                  ],
+                  ),
+                  child: Text(
+                    selectedEndTime != null
+                        ? 'End Time: ${selectedEndTime!.toLocal()}'
+                        : 'Select End Time',
+                    style: TextStyle(color: Color.fromARGB(255, 39, 32, 43)),
+                  ),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                Hero(
+                  tag: 'StartImage',
+                  child: Image.asset(
+                    'assets/images/search.png',
+                    width: 319,
+                    height: 166,
+                  ),
                 ),
               ],
             ),
@@ -206,11 +256,16 @@ class _JoinSessionState extends State<JoinSession> {
                 );
               },
               style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 168, 159, 226),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: BorderRadius.circular(15.0),
                 ),
+                 padding: EdgeInsets.symmetric( vertical: 10.0),
               ),
-              child: Icon(Icons.check),
+              child: Icon(
+                Icons.check_rounded,
+                color: Colors.white,
+              ),
             ),
           ),
         ], // Closing bracket for children of Stack
